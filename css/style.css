@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&family=Lato&display=swap');
+
+:root {
+    /* Colors (palette)*/
+    --col-purewhite:     white;
+    --col-white:         #f5f3ff;
+    --col-black:         #474545;
+    --col-accent-dark:   #7c3aed;
+    --col-accent-medium: #a78bfa;
+    --col-accent-light:  #ddd6fe;
+
+    /* Colors (background)*/
+    --bg-col:                   var(--col-purewhite);
+    
+    /* Colors (text/icons)*/
+    --col-txt:                  var(--col-black);
+    --col-txt-alt:              var(--col-white);
+    --col-highlight:            var(--col-accent-dark);
+
+    /* Colors (icons)*/
+
+    /* Font family */
+    --main-font: 'Montserrat', sans-serif;
+
+    /* Font sizes */
+    --txt-fontsize:     18px;
+    --txt-lineheight:   1.2;
+
+    /* Text clamping: number of lines */
+    /* --main-itm-project-description-max-lines: 6;
+    --main-itm-announcements-description-max-lines: 3; */
+
+    /* Maximum width (including dashboard margin) */
+    /* --max-width: min(1440px, 100%); */
+
+    /*Margins, gaps and paddings (+widths)*/
+
+    /* Images / icons size */
+
+
+    /* Radius */
+    /* --radius:           10px; */
+
+    /* Shadows */
+    /* --outset-shadow: 2px 2px 8px var(--col-accent-medium);
+    --outset-shadow-btn-active: 2px 2px 5px var(--col-accent-medium);
+    --inset-shadow: 2px 2px 2px var(--col-accent-light) inset; */
+
+    /* Animations on hover / active / ...*/
+
+}
+
+
+html {
+    background-color: var(--bg-col);
+    color: var(--col-txt);
+    font-family: var(--main-font), sans-serif;
+    font-weight: 400;
+    font-size: var(--txt-fontsize);
+    line-height: var(--txt-lineheight);
+}
+
+* {
+    font-family: inherit;
+    line-height: inherit;
+    color: inherit;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    margin: 0 auto;
+    height: 100vh;
+    /*it is assumed the same for <html>*/
+    width: 100%;
+    /* or max-width -- this avoids horizontal scroll bars */
+}
+
+/*****************************************************/
+
+/* || Generic */
+
+body{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+/* || Footer */
+footer {
+    --light-grey: rgb(210, 210, 210);
+    --black: rgb(0, 0, 0);
+    --ftr-fontsize: 12px;
+    --ftr-font: 'Montserrat';
+    --ftr-padding: 5px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-color: var(--light-grey);
+    color: var(--black);
+    font-family: var(--ftr-font), sans-serif;
+    font-size: var(--ftr-fontsize);
+    font-weight: 400;
+    line-height: 1.2;
+    padding: var(--ftr-padding);
+}
+
+footer i {
+    font-size: 1.3em;
+}
