@@ -217,7 +217,7 @@ function initItemsColorsCSSClasses(){
     // in case the game parameters / setting change)
     let colorStyleStr = '';
     for (let i=0;i<colors.length; i++){
-        colorStyleStr += `.C${i} { background-color: ${colors[i]}; }\n`;
+        colorStyleStr += `.I${i} { background-color: ${colors[i]}; }\n`;
     }
 
     style.innerHTML = colorStyleStr;
@@ -228,20 +228,20 @@ function initItemsColorsCSSClasses(){
 // An example of structure is reported next:
         // <div class="table">
         //     <div class="container">
-        //         <div class="item C0"></div>
-        //         <div class="item C0"></div>
+        //         <div class="item I0"></div>
+        //         <div class="item I0"></div>
         //     </div>
         //     <div class="container">
-        //         <div class="item C1"></div>
-        //         <div class="item C0"></div>
+        //         <div class="item I1"></div>
+        //         <div class="item I0"></div>
         //     </div>
         //     <div class="container">
         //     </div>
         //     <div class="container">
-        //         <div class="item C2"></div>
-        //         <div class="item C0"></div>
-        //         <div class="item C0"></div>
-        //         <div class="item C0"></div>
+        //         <div class="item I2"></div>
+        //         <div class="item I0"></div>
+        //         <div class="item I0"></div>
+        //         <div class="item I0"></div>
         //     </div>
         //     <div class="container">
         //     </div>
@@ -253,7 +253,7 @@ function createTableHTML(table){
     document.documentElement.style.setProperty("--H", H.toString());
 
     let container_div, item_div;
-    let table_div = document.createElement('div');
+    table_div = document.createElement('div'); // set the global variable
     table_div.classList.add('table');
 
     // Starting from an empty 'table', add the containers as specified in 'table'
@@ -261,12 +261,13 @@ function createTableHTML(table){
         container = table[i];
         container_div = document.createElement('div');
         container_div.classList.add('container');
+        container_div.id = i; /* assign the item id */
      
         // for each container, add the items, as specified in 'table' items
         for (let j=0;j<container.length;j++){
            item_div = document.createElement('div');
            item_div.classList.add('item');
-           item_div.classList.add('C' + container[j]);
+           item_div.classList.add('I' + container[j]);
            container_div.appendChild(item_div);
         }
      
@@ -292,8 +293,84 @@ function newGame(){
     game = new Game();
     console.table(game.table);
     createTableHTML(game.table);
+
+    // No items selected initially
+    fromContainer_div = undefined;
+
+    // Add a click callback to all the container elements
+    items = document.querySelectorAll('.container');
+    items.forEach(itm => {itm.addEventListener('click',containerClick_callback)});
+
 }
 
+
+
+let TIME_TRANSITIONS = 50; // todo: take from the css file
+
+function containerClick_callback(e){
+
+    let thisContainer_div = e.target;
+
+    // https://stackoverflow.com/questions/1279957/how-to-move-an-element-into-another-element
+    // https://stackoverflow.com/questions/1183872/put-a-delay-in-javascript
+
+    if(fromContainer_div){
+        // The 'from' container for a move is already set
+        if (thisContainer_div === fromContainer_div){
+            // Ignore the move if this container is the 'from' one
+            fromContainer_div.classList.remove('selected');
+            fromContainer_div = undefined;
+            console.log(`Container ${thisContainer_div.id} unselected (move ignored)`);
+        } else {
+            // Check if the move can be performed: if so, apply the modification to the DOM
+            if (game.makeMove(fromContainer_div.id, thisContainer_div.id)){
+                console.log(`Moving from ${fromContainer_div.id} to ${thisContainer_div.id}`);
+
+                // disable pointer events
+                table_div.style.pointerEvents = 'none';
+
+                // The item to move exists by construction (see #1 comment below)
+                let itmToMove = fromContainer_div.lastElementChild;
+                itmToMove.classList.add('move');
+
+                // Wait for the animation (item out)
+                setTimeout(function() {
+                    fromContainer_div.classList.remove('selected');
+                    fromContainer_div = undefined;
+                    thisContainer_div.appendChild(itmToMove);
+
+                    // Wait for the animation (item in)
+                    setTimeout(function() {
+                        itmToMove.classList.remove('move');
+                        // re-enable pointer events
+                        table_div.style.pointerEvents = 'auto';
+                    }, TIME_TRANSITIONS);
+                }, TIME_TRANSITIONS);
+                return;
+            } else {
+                /* The move cannot be performed */
+                console.log(`Cannot move from ${fromContainer_div.id} to ${thisContainer_div.id} !`);
+
+                /* todo: add animation */
+
+                fromContainer_div.classList.remove('selected');
+                fromContainer_div = undefined;
+            }
+        }
+    } else {
+        // Set the 'from' container for a move, if there is at least an element to move
+        if (thisContainer_div.lastElementChild != null){ /* #1 */
+            fromContainer_div = thisContainer_div;
+            fromContainer_div.classList.add('selected');
+            console.log(`Container ${thisContainer_div.id} selected`);
+        } else {
+            console.log(`Container ${thisContainer_div.id} not selected (it is empty)`);
+        }
+    }
+}
+
+
+/* || Animation */
 
 function init(){
     initItemsColorsCSSClasses();
@@ -304,4 +381,7 @@ function init(){
 
 
 let game; // global variable representing the current game
+let table_div; // global variable representing the current game HTML interface
+let fromContainer_div;
+
 init();

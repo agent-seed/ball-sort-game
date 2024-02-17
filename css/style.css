@@ -151,6 +151,10 @@ main{
     border-radius: 0 0 var(--container-radius) var(--container-radius);
 }
 
+.container > * {
+    pointer-events: none;
+}
+
 .item{
     height: var(--item-len);
     width: var(--item-len);
@@ -162,13 +166,14 @@ main{
 
 
 /* Hover / active / other status behaviour*/
-
-.container:hover .item:last-child{
-    transform: scale(var(--scale-factor));
-    z-index: 2;
+@media not all and (hover: none){
+    .container:hover .item:last-child{
+        transform: scale(var(--scale-factor));
+        z-index: 2;
+    }
 }
 
-.container:active .item:last-child,
+/* .container:active .item:last-child, */
 .container.selected .item:last-child{
     transform: scale(var(--scale-factor))  translateY(var(--offset-selected));
     z-index: 2;
