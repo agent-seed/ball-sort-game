@@ -1,4 +1,4 @@
-let N = 6;      // number of full containers / colors
+let N = 8;      // number of full containers / colors
 let K = 2;      // number of empty contantars
 let H = 5;      // max height (items) of each containers
 let C = N + K;  // number of containers (empty + full)
