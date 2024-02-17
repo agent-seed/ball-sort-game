@@ -164,6 +164,10 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
         )).length == C;
  }
 
+ Game.prototype.restart = function(){
+    this.table = deepCopyMatrix(this.initialTable);
+ }
+
 
 
 // test and debug ----------------------------------------------
@@ -281,13 +285,12 @@ function createTableHTML(table){
 function deleteTableHTML(){
     let main = document.querySelector('main');
     removeDescendants(main);
-
-    game = undefined;
 }
 
 function newGame(){
     // Clear the current table
     deleteTableHTML();
+    game = undefined;
 
     // Create a new game
     game = new Game();
@@ -300,9 +303,24 @@ function newGame(){
     // Add a click callback to all the container elements
     items = document.querySelectorAll('.container');
     items.forEach(itm => {itm.addEventListener('click',containerClick_callback)});
-
 }
 
+function restartGame(){
+    // Clear the current table
+    deleteTableHTML();
+
+    // Create a new game
+    game.restart();
+    console.table(game.table);
+    createTableHTML(game.table);
+
+    // No items selected initially
+    fromContainer_div = undefined;
+
+    // Add a click callback to all the container elements
+    items = document.querySelectorAll('.container');
+    items.forEach(itm => {itm.addEventListener('click',containerClick_callback)});
+}
 
 
 let TIME_TRANSITIONS = 50; // todo: take from the css file
@@ -370,10 +388,26 @@ function containerClick_callback(e){
 }
 
 
+/* || Buttons event listener */
+function newBtn_callback(){
+    newGame();
+}
+
+function restartBtn_callback(){
+    restartGame();
+}
+
+
 /* || Animation */
 
 function init(){
     initItemsColorsCSSClasses();
+
+    newBtn = document.querySelector('button.new');
+    newBtn.addEventListener('click',newBtn_callback);
+
+    restartBtn = document.querySelector('button.restart');
+    restartBtn.addEventListener('click',restartBtn_callback);
 
     // Create a new game
     newGame();
