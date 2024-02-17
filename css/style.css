@@ -161,19 +161,6 @@ main{
 }
 
 
-
-.C0{
-    background-color: red;
-}
-
-.C1{
-    background-color: green;
-}
-
-.C2{
-    background-color:blue;
-}
-
 /* Hover / active / other status behaviour*/
 
 .container:hover .item:last-child{

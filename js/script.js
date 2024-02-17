@@ -160,35 +160,75 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
 
 
 // test and debug ----------------------------------------------
-let game = new Game();
+//let game = new Game();
 
-console.table(game.initialTable);
-console.table(game.table);
+// console.table(game.initialTable);
+// console.table(game.table);
 
-game.makeMove(0,2);
-game.makeMove(2,2);
-game.makeMove(6,3);
-game.makeMove(0,6);
-game.makeMove(0,6);
-game.makeMove(1,6);
-game.makeMove(0,1);
+// game.makeMove(0,2);
+// game.makeMove(2,2);
+// game.makeMove(6,3);
+// game.makeMove(0,6);
+// game.makeMove(0,6);
+// game.makeMove(1,6);
+// game.makeMove(0,1);
 
-console.table(game.initialTable);
-console.table(game.table);
+// console.table(game.initialTable);
+// console.table(game.table);
 
-console.log(game.isSolved());
+// console.log(game.isSolved());
 
-// set table as the final configuration to test the isSolved method
-game.table = [];
-for (let i=0; i<N; i++){
-    game.table.push(Array(H).fill(i));
-}
-// append the empty containers
-for (let i=0; i<K; i++){
-    game.table.push([]);
-}
-// shuffle it
-shuffle(game.table);
-// test the function
-console.log(game.isSolved());
+// // set table as the final configuration to test the isSolved method
+// game.table = [];
+// for (let i=0; i<N; i++){
+//     game.table.push(Array(H).fill(i));
+// }
+// // append the empty containers
+// for (let i=0; i<K; i++){
+//     game.table.push([]);
+// }
+// // shuffle it
+// shuffle(game.table);
+// // test the function
+// console.log(game.isSolved());
 // -------------------------------------------------------------
+
+
+/* || User Interface */
+
+// List of 20 Simple, Distinct Colors, from https://sashamaps.net/docs/resources/20-colors/
+let colors=['#e6194B', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#fabed4', '#469990', '#dcbeff', '#9A6324', '#fffac8', '#800000', '#aaffc3', '#808000', '#ffd8b1', '#000075', '#a9a9a9'];
+
+function initItemsColorsCSSClasses(){
+    // create CSS rule for the color of each item
+    // see https://stackoverflow.com/questions/1720320/how-to-dynamically-create-css-class-in-javascript-and-apply
+
+    let head = document.getElementsByTagName('head')[0];
+    let style = document.createElement('style');
+
+    // Create the string of all the rules for each color in colors (even more than necessary... do this only once,
+    // in case the game parameters / setting change)
+    let colorStyleStr = '';
+    for (let i=0;i<colors.length; i++){
+        colorStyleStr += `.C${i} { background-color: ${colors[i]}; }\n`;
+    }
+
+    console.log(colorStyleStr);
+    style.innerHTML = colorStyleStr;
+    head.appendChild(style);
+}
+
+
+
+
+
+
+
+
+function init(){
+    initItemsColorsCSSClasses();
+}
+
+
+
+init();
