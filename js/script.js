@@ -47,6 +47,13 @@ function arrayEqualItems(array){
     return array.every((itm, idx, arr) => itm === arr[0]);
 }
 
+function removeDescendants(elem){
+    while (elem.hasChildNodes()) {
+        removeDescendants(elem.lastChild)
+        elem.removeChild(elem.lastChild);
+    }
+}
+
 /* Game object, which has C containers and N*H items within them ---------------------------- */
 
 function Game(){
@@ -213,22 +220,88 @@ function initItemsColorsCSSClasses(){
         colorStyleStr += `.C${i} { background-color: ${colors[i]}; }\n`;
     }
 
-    console.log(colorStyleStr);
     style.innerHTML = colorStyleStr;
     head.appendChild(style);
 }
 
+// Create the html structure of the game (containers, items)
+// An example of structure is reported next:
+        // <div class="table">
+        //     <div class="container">
+        //         <div class="item C0"></div>
+        //         <div class="item C0"></div>
+        //     </div>
+        //     <div class="container">
+        //         <div class="item C1"></div>
+        //         <div class="item C0"></div>
+        //     </div>
+        //     <div class="container">
+        //     </div>
+        //     <div class="container">
+        //         <div class="item C2"></div>
+        //         <div class="item C0"></div>
+        //         <div class="item C0"></div>
+        //         <div class="item C0"></div>
+        //     </div>
+        //     <div class="container">
+        //     </div>
+        // </div>
 
+function createTableHTML(table){
+    // Set the current H
+    // document.documentElement is ::root
+    document.documentElement.style.setProperty("--H", H.toString());
 
+    let container_div, item_div;
+    let table_div = document.createElement('div');
+    table_div.classList.add('table');
 
+    // Starting from an empty 'table', add the containers as specified in 'table'
+    for (let i=0; i<table.length; i++){
+        container = table[i];
+        container_div = document.createElement('div');
+        container_div.classList.add('container');
+     
+        // for each container, add the items, as specified in 'table' items
+        for (let j=0;j<container.length;j++){
+           item_div = document.createElement('div');
+           item_div.classList.add('item');
+           item_div.classList.add('C' + container[j]);
+           container_div.appendChild(item_div);
+        }
+     
+        table_div.appendChild(container_div);
+     }
 
+     // Apply the created table to the main html
+     document.querySelector('main').appendChild(table_div);
+}
 
+function deleteTableHTML(){
+    let main = document.querySelector('main');
+    removeDescendants(main);
+
+    game = undefined;
+}
+
+function newGame(){
+    // Clear the current table
+    deleteTableHTML();
+
+    // Create a new game
+    game = new Game();
+    console.table(game.table);
+    createTableHTML(game.table);
+}
 
 
 function init(){
     initItemsColorsCSSClasses();
+
+    // Create a new game
+    newGame();
 }
 
 
-
+let game; // global variable representing the current game
 init();

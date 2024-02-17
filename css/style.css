@@ -28,7 +28,7 @@
 
     /* Table, Containers and Items */
     --H: 4;
-    --item-len: 80px;
+    --item-len: 50px;
 
     --container-padding-frac: 0.1; /*fraction, wrt --item-len*/
     --container-gap-frac: 0.1; /*fraction, wrt --item-len*/
