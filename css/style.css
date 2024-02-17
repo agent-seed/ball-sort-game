@@ -5,9 +5,9 @@
     --col-purewhite:     white;
     --col-white:         #f5f3ff;
     --col-black:         #474545;
-    --col-accent-dark:   #7c3aed;
-    --col-accent-medium: #a78bfa;
-    --col-accent-light:  #ddd6fe;
+    --col-accent-dark:   orange;
+    --col-accent-medium: purple;
+    --col-accent-light:  teal;
 
     /* Colors (background)*/
     --bg-col:                   var(--col-purewhite);
@@ -26,27 +26,48 @@
     --txt-fontsize:     18px;
     --txt-lineheight:   1.2;
 
-    /* Text clamping: number of lines */
-    /* --main-itm-project-description-max-lines: 6;
-    --main-itm-announcements-description-max-lines: 3; */
+    /* Table, Containers and Items */
+    --H: 4;
+    --item-len: 80px;
 
+    --container-padding-frac: 0.1; /*fraction, wrt --item-len*/
+    --container-gap-frac: 0.1; /*fraction, wrt --item-len*/
+    --table-gap-frac: 0.2; /*fraction, wrt --item-len*/
+
+    --container-border: 2px;
+    --container-color: var(--col-black);
+
+    --item-radius: calc(var(--item-len)/2);
+    --container-radius: calc(var(--item-radius)/2); 
+
+    --container-padding: max(1px, calc(var(--item-len) * var(--container-padding-frac)));
+    --container-gap: max(1px, calc(var(--item-len) * var(--container-gap-frac)));
+    --table-gap: max(1px, calc(var(--item-len) * var(--table-gap-frac)));
+
+    --container-border-x2: calc(var(--container-border) * 2);
+    --container-padding-x2: calc(var(--container-padding) * 2);
+    --item-len-xH: calc(var(--item-len) * var(--H));
+    --container-gap-xH-1: calc(var(--container-gap) * (var(--H) - 1));
+
+    --container-height: calc(var(--container-padding-x2) + var(--item-len-xH) + var(--container-gap-xH-1) + var(--container-border));
+    --container-width: calc(var(--container-padding-x2) + var(--item-len) + var(--container-border-x2));
+
+    --scale-factor: calc(1 + min(var(--container-padding-frac) , var(--container-gap-frac)));
+    --offset-selected: calc(-1 * var(--item-len) / 8);
+    --offset-move: calc(-1 * var(--item-len) * 1 + var(--offset-selected));
+
+   
     /* Maximum width (including dashboard margin) */
-    /* --max-width: min(1440px, 100%); */
+    --max-width: min(1440px, 100%);
 
-    /*Margins, gaps and paddings (+widths)*/
-
-    /* Images / icons size */
-
-
-    /* Radius */
-    /* --radius:           10px; */
-
+    
     /* Shadows */
     /* --outset-shadow: 2px 2px 8px var(--col-accent-medium);
     --outset-shadow-btn-active: 2px 2px 5px var(--col-accent-medium);
     --inset-shadow: 2px 2px 2px var(--col-accent-light) inset; */
 
     /* Animations on hover / active / ...*/
+    --transition-time: 0.3s;
 
 }
 
@@ -86,6 +107,93 @@ body{
     flex-direction: column;
     align-items: center;
 }
+
+
+main{
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+
+}
+
+.table{
+    flex: 1;
+    width: 100%;
+    max-width: var(--max-width);
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    gap: var(--table-gap); 
+    flex-wrap: wrap;
+    align-content: stretch;
+}
+
+.container{
+    background-color: var(--col-white); 
+
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--container-gap);
+
+    width: var(--container-width);
+    height: var(--container-height);
+    padding: var(--container-padding);
+
+    border: var(--container-border) solid var(--container-color);
+    border-top-width: 0; 
+    border-radius: 0 0 var(--container-radius) var(--container-radius);
+}
+
+.item{
+    height: var(--item-len);
+    width: var(--item-len);
+    border-radius: var(--item-radius);
+    background-image: radial-gradient(circle at center, rgb(255,255,255,60%) 2%, rgb(255,255,255,0%) 100%);
+    transition: transform var(--transition-time), opacity var(--transition-time), scale var(--transition-time);
+    user-select: none;
+}
+
+
+
+.C0{
+    background-color: red;
+}
+
+.C1{
+    background-color: green;
+}
+
+.C2{
+    background-color:blue;
+}
+
+/* Hover / active / other status behaviour*/
+
+.container:hover .item:last-child{
+    transform: scale(var(--scale-factor));
+    z-index: 2;
+}
+
+.container:active .item:last-child,
+.container.selected .item:last-child{
+    transform: scale(var(--scale-factor))  translateY(var(--offset-selected));
+    z-index: 2;
+}
+
+
+.container .item.move:last-child{
+    transform: scale(var(--scale-factor))  translateY(var(--offset-move));
+    opacity: 0;
+    z-index: 2;
+}
+
 
 
 /* || Footer */
