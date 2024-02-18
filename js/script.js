@@ -84,6 +84,9 @@ function Game(){
     // Save the initial table
     this.initialTable  =  deepCopyMatrix(this.table);
 
+    // Initialize the moves performed
+    this.moves = [];
+
 }
 
 
@@ -111,6 +114,8 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
     // move allowed: do it
     this.table[toIdx].push(this.table[fromIdx].pop());
    
+    this.moves.push([fromIdx,toIdx]);
+
     console.log(strTmp,` ---> [${this.table[fromIdx]}] > [${this.table[toIdx]}]`); // debug
  
     
@@ -119,6 +124,28 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
 
 
     return true;
+ };
+
+ Game.prototype.undoLastMove = function(){
+    // this returns '[]' if the move is not performed, '[fromIdx,toIdx]' otherwise
+    // (ie, the move performed to undo the last one)
+
+    // if there are not previous moves, return false
+    if (this.moves.length==0){
+        return [];
+    }
+
+    let lastMove = this.moves.pop();
+    let fromIdx = lastMove[1]; 
+    let toIdx = lastMove[0];
+    let strTmp = `Undo last move, ${fromIdx}>${toIdx} : [${this.table[fromIdx]}] > [${this.table[toIdx]}]`; // debug
+ 
+    // undo last move
+    this.table[toIdx].push(this.table[fromIdx].pop());
+   
+    console.log(strTmp,` ---> [${this.table[fromIdx]}] > [${this.table[toIdx]}]`); // debug
+ 
+    return [fromIdx,toIdx];
  };
  
  Game.prototype.makeMoveReverse = function(fromIdx,toIdx){
@@ -162,11 +189,12 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
     return this.table.filter((container) => (container.length==0
         || (container.length==H && arrayEqualItems(container))
         )).length == C;
- }
+ };
 
  Game.prototype.restart = function(){
     this.table = deepCopyMatrix(this.initialTable);
- }
+    this.moves = [];
+ };
 
 
 
@@ -259,6 +287,7 @@ function createTableHTML(table){
     let container_div, item_div;
     table_div = document.createElement('div'); // set the global variable
     table_div.classList.add('table');
+    container_divs = [];
 
     // Starting from an empty 'table', add the containers as specified in 'table'
     for (let i=0; i<table.length; i++){
@@ -276,6 +305,7 @@ function createTableHTML(table){
         }
      
         table_div.appendChild(container_div);
+        container_divs.push(container_div);
      }
 
      // Apply the created table to the main html
@@ -397,6 +427,19 @@ function restartBtn_callback(){
     restartGame();
 }
 
+function undoBtn_callback(){
+    let lastMove = game.undoLastMove();
+    if (lastMove.length){
+        let fromIdx = lastMove[0];
+        let toIdx = lastMove[1];
+
+        console.log(`Undo last move, moving from ${container_divs[fromIdx].id} to ${container_divs[toIdx].id}`);
+
+        let itmToMove = container_divs[fromIdx].lastElementChild;
+        container_divs[toIdx].appendChild(itmToMove);
+    }
+}
+
 
 /* || Animation */
 
@@ -409,6 +452,9 @@ function init(){
     restartBtn = document.querySelector('button.restart');
     restartBtn.addEventListener('click',restartBtn_callback);
 
+    undotBtn = document.querySelector('button.undo');
+    undotBtn.addEventListener('click',undoBtn_callback);
+
     // Create a new game
     newGame();
 }
@@ -416,6 +462,7 @@ function init(){
 
 let game; // global variable representing the current game
 let table_div; // global variable representing the current game HTML interface
+let container_divs;
 let fromContainer_div;
 
 init();
