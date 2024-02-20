@@ -2,88 +2,96 @@
 
 :root {
     /* Colors (palette)*/
-    --col-purewhite:     white;
-    --col-white:         #FAF8ED;
-    --col-black:         #474545;
+    --col-purewhite:    white;
+    --col-white:        #FAF8ED;
+    --col-black:        #474545;
     --col-accent-dark:  #748E63;
     --col-accent-light: #99B080;
 
 
     /* Colors (background)*/
     --bg-col:                   var(--col-purewhite);
-    
+
+    --hdr-bg-col:               var(--col-purewhite);
+    --nav-bg-col:               var(--col-white);
+    --btn-bg-col:               var(--col-accent-light);
+ 
     /* Colors (text/icons)*/
     --col-txt:                  var(--col-black);
-    --col-txt-alt:              var(--col-white);
+    --col-txt-alt:              var(--col-purewhite);
     --col-highlight:            var(--col-accent-dark);
 
-    --hdr-bg-col: var(--col-purewhite);
-    --nav-bg-col: var(--col-white);
-    --btn-bg-col: var(--col-accent-light);
-    --btn-hover-bg-col: var(--col-accent-light);
-
-    --hdr-col:          var(--col-accent-dark);
-    --btn-col:          var(--col-white);
-    --btn-focus-col:    var(--col-white);
-
+    --hdr-col:                  var(--col-accent-dark);
+    --btn-col:                  var(--col-txt-alt);
+    --btn-focus-col:            var(--col-white);  
 
     /* Font family */
-    --main-font: 'Montserrat', sans-serif;
+    --main-font:        'Montserrat', sans-serif;
 
     /* Font sizes */
-    --txt-fontsize:     14px;
+    --txt-fontsize:     2vmax;
     --txt-lineheight:   1.2;
-    --hdr-fontsize:     1.4rem;
+    --hdr-fontsize:     2rem;
     --nav-btn-fontsize: 0.8rem;
 
-    /* Header, Nav */
-    --hdr-padding:          10px 5px;
-    --nav-padding:          8px 5px;
+    /* Maximum width (including dashboard margin) */
+    --max-width:        min(1440px, 100vw);
+    --hor-padding:      15px;
 
-    --nav-btn-height:       4em;
-    --nav-btn-width:        5em;
+    /* Header, Nav */
+    --hdr-ver-padding:      10px;
+    --nav-ver-padding:      8px;
+
+    --nav-btn-height:       3rem;
+    --nav-btn-width:        4rem;
     --nav-btn-gap:          6px;
     --nav-btn-icon-len:     1.8rem;
     --nav-btn-border-width: 2px;
 
-    --radius:  10px;
+    --hdr-height:  calc(2 * var(--hdr-ver-padding) + var(--hdr-fontsize)*var(--txt-lineheight));
+    --nav-height:  calc(2 * var(--nav-ver-padding) + var(--nav-btn-height));
+
+    --radius:               10px;
     --btn-focus-offset:     1px;
     --btn-focus-width:      2px;
+    --btn-lineheight:       1;
 
     /* Table, Containers and Items */
-    --H: 4;
-    --item-len: 50px;
+    --H: 1; /* this is set in js*/
+    --C: 10; /* todo: set in js*/
+    --nrows: 2; /* todo: set in js*/
+    --ncols: calc((var(--C)) / var(--nrows)); /* todo: ceiling in js*/
+
+    --table-ver-padding: 20px;
+    --table-gap-frac:    0.2; /*fraction, wrt --item-len*/
 
     --container-padding-frac: 0.1; /*fraction, wrt --item-len*/
-    --container-gap-frac: 0.1; /*fraction, wrt --item-len*/
-    --table-gap-frac: 0.2; /*fraction, wrt --item-len*/
+    --container-gap-frac:     0.1; /*fraction, wrt --item-len*/
+    --container-extra-padding-top-frac: 0.4; /*fraction, wrt --item-len*/
+    --container-extra-margin-top-frac: 0.4; /*fraction, wrt --item-len*/
 
     --container-border: 2px;
-    --container-color: var(--col-black);
+
+    /* Compute the items (balls) sizes to use in order to fill the horizontal or the vertical available space: then, use the minimum*/ 
+    --item-len-horfill: calc( (var(--max-width)  - var(--ncols) * 2 * var(--container-border) - 2*var(--hor-padding))
+          / (var(--ncols) * (1 + 2 * var(--container-padding-frac) + var(--table-gap-frac) )));
+
+    --item-len-verfill: calc( (100lvh - var(--nrows) * var(--container-border) - var(--hdr-height) - var(--nav-height) - var(--ftr-height) - 2 * var(--table-ver-padding))
+          / (var(--nrows) * (var(--H) + 2 * var(--container-padding-frac) + var(--container-extra-padding-top-frac) + ( var(--H) - 1 ) * var(--container-gap-frac) + var(--container-extra-margin-top-frac)) + ( var(--nrows) - 1) * var(--table-gap-frac) ) );
+
+    --item-len: min(var(--item-len-horfill), var(--item-len-verfill));      
+
+    --container-padding: max(1px, calc(var(--item-len) * var(--container-padding-frac)));
+    --container-extra-padding-top: calc(var(--item-len) * var(--container-extra-padding-top-frac));
+    --container-gap: max(1px, calc(var(--item-len) * var(--container-gap-frac)));
+    --container-extra-margin-top: max(1px, calc(var(--item-len) * var(--container-extra-margin-top-frac)));
+    --table-gap: max(1px, calc(var(--item-len) * var(--table-gap-frac)));
+
+    --container-height: calc(var(--item-len) * var(--H) + 2 * var(--container-padding) +  var(--container-gap) * (var(--H) - 1) + var(--container-border) + var(--container-extra-padding-top));
+    --container-width: calc(var(--item-len) +  2 * (var(--container-padding) + var(--container-border)));
 
     --item-radius: calc(var(--item-len)/2);
     --container-radius: calc(var(--item-radius)/2); 
-
-    --container-padding: max(1px, calc(var(--item-len) * var(--container-padding-frac)));
-    --container-gap: max(1px, calc(var(--item-len) * var(--container-gap-frac)));
-    --table-gap: max(1px, calc(var(--item-len) * var(--table-gap-frac)));
-
-    --container-border-x2: calc(var(--container-border) * 2);
-    --container-padding-x2: calc(var(--container-padding) * 2);
-    --item-len-xH: calc(var(--item-len) * var(--H));
-    --container-gap-xH-1: calc(var(--container-gap) * (var(--H) - 1));
-
-    --container-height: calc(var(--container-padding-x2) + var(--item-len-xH) + var(--container-gap-xH-1) + var(--container-border));
-    --container-width: calc(var(--container-padding-x2) + var(--item-len) + var(--container-border-x2));
-
-    --scale-factor: calc(1 + min(var(--container-padding-frac) , var(--container-gap-frac)));
-    --offset-selected: calc(-1 * var(--item-len) / 8);
-    --offset-move: calc(-1 * var(--item-len) * 1 + var(--offset-selected));
-
-   
-    /* Maximum width (including dashboard margin) */
-    --max-width: min(1440px, 100%);
-
     
     /* Shadows */
     /* --outset-shadow: 2px 2px 8px var(--col-accent-medium);
@@ -92,7 +100,10 @@
     --inset-shadow: 0px 2px 2px var(--col-accent-light) inset;
 
     /* Animations on hover / active / ...*/
-    --transition-time: 0.3s;
+    --item-transition-time: 0.3s;
+    --item-scale-factor: calc(1 + min(var(--container-padding-frac) , var(--container-gap-frac)));
+    --item-offset-selected: calc(-1 * var(--item-len) / 8);
+    --item-offset-move: calc(-1 * var(--item-len) * 1 + var(--item-offset-selected));
 
 }
 
@@ -117,16 +128,10 @@ html {
 
 body {
     margin: 0 auto;
-    height: 100vh;
-    /*it is assumed the same for <html>*/
-    width: 100%;
-    /* or max-width -- this avoids horizontal scroll bars */
-}
+    height: 100vh;  /*it is assumed the same for <html>*/
+    height: 100dvh; /* if supported */
 
-@supports(height: 100dvh){
-    body {
-        height: 100dvh;
-    }    
+    width: 100%;    /* or max-width -- this avoids horizontal scroll bars */
 }
 
 /*****************************************************/
@@ -160,7 +165,11 @@ header{
 .header-container{
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: var(--hdr-padding);
+    padding: var(--hdr-ver-padding) var(--hor-padding);
+    font-size: var(--hdr-fontsize);
+}
+
+.header-container h1{
     font-size: var(--hdr-fontsize);
 }
 
@@ -168,6 +177,7 @@ header{
 nav{
     background-color: var(--nav-bg-col);
     box-shadow: var(--inset-shadow);
+    padding: var(--nav-ver-padding) var(--hor-padding);
 }
 
 .nav-btns {
@@ -184,7 +194,6 @@ nav{
     gap: var(--btn-gap);
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: var(--nav-padding);
 }
 
 .flex-separator{
@@ -197,6 +206,7 @@ button{
     height: var(--btn-height);
     width: var(--btn-width);
     font-size: var(--btn-fontsize);
+    line-height: var(--btn-lineheight);
     border-radius: var(--radius);
     vertical-align: center;
     display:inline-flex;
@@ -256,16 +266,19 @@ button .icon::before{
 
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-around;
+    align-content: space-between;
     gap: var(--table-gap); 
     flex-wrap: wrap;
     align-content: stretch;
+
+    padding: var(--table-ver-padding) var(--hor-padding);
 }
 
 .container{
     /* background-color: var(--col-white); */
-    background-image: linear-gradient(0deg,var(--col-white),var(--col-purewhite));
+    background-image: linear-gradient(0deg,var(--col-white) 75%,var(--col-purewhite) 100%);
 
     display: flex;
     flex-direction: column-reverse;
@@ -276,9 +289,10 @@ button .icon::before{
     width: var(--container-width);
     height: var(--container-height);
     padding: var(--container-padding);
+    margin-top: var(--container-extra-margin-top);
 
-    border: var(--container-border) solid var(--container-color);
-    border-top-width: 0; 
+    border: var(--container-border) solid var(--col-black);
+    border-top-width: 0px; 
     border-radius: 0 0 var(--container-radius) var(--container-radius);
 }
 
@@ -291,7 +305,7 @@ button .icon::before{
     width: var(--item-len);
     border-radius: var(--item-radius);
     background-image: radial-gradient(circle at center, rgb(255,255,255,60%) 2%, rgb(255,255,255,0%) 100%);
-    transition: transform var(--transition-time), opacity var(--transition-time), scale var(--transition-time);
+    transition: transform var(--item-transition-time), opacity var(--item-transition-time), scale var(--item-transition-time);
     user-select: none;
 }
 
@@ -299,20 +313,20 @@ button .icon::before{
 /* Hover / active / other status behaviour*/
 @media not all and (hover: none){
     .container:hover .item:last-child{
-        transform: scale(var(--scale-factor));
+        transform: scale(var(--item-scale-factor));
         z-index: 2;
     }
 }
 
 /* .container:active .item:last-child, */
 .container.selected .item:last-child{
-    transform: scale(var(--scale-factor))  translateY(var(--offset-selected));
+    transform: scale(var(--item-scale-factor))  translateY(var(--item-offset-selected));
     z-index: 2;
 }
 
 
 .container .item.move:last-child{
-    transform: scale(var(--scale-factor))  translateY(var(--offset-move));
+    transform: scale(var(--item-scale-factor))  translateY(var(--item-offset-move));
     opacity: 0;
     z-index: 2;
 }
@@ -350,12 +364,18 @@ button.settings .icon::before{
 
 
 /* || Footer */
+:root{
+    --ftr-padding: 5px;
+    --ftr-lineheight: 1.2;
+    --ftr-fontsize: 12px;
+    --ftr-height:  calc(2 * var(--ftr-padding) + var(--ftr-fontsize) * var(--ftr-lineheight));
+}
+
 footer {
     --light-grey: rgb(210, 210, 210);
     --black: rgb(0, 0, 0);
-    --ftr-fontsize: 12px;
     --ftr-font: 'Montserrat';
-    --ftr-padding: 5px;
+
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -367,10 +387,10 @@ footer {
     font-family: var(--ftr-font), sans-serif;
     font-size: var(--ftr-fontsize);
     font-weight: 400;
-    line-height: 1.2;
+    line-height: var(--ftr-lineheight);
     padding: var(--ftr-padding);
 }
 
 footer i {
-    font-size: 1.3em;
+    /* font-size: 1.3em; */
 }
