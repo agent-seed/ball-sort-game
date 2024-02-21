@@ -29,7 +29,7 @@
     --main-font:        'Montserrat', sans-serif;
 
     /* Font sizes */
-    --txt-fontsize:     2vmax;
+    --txt-fontsize:     1vmax;
     --txt-lineheight:   1.2;
     --hdr-fontsize:     2rem;
     --nav-btn-fontsize: 0.8rem;
@@ -42,10 +42,10 @@
     --hdr-ver-padding:      10px;
     --nav-ver-padding:      8px;
 
-    --nav-btn-height:       3rem;
-    --nav-btn-width:        4rem;
+    --nav-btn-height:       5rem;
+    --nav-btn-width:        6rem;
     --nav-btn-gap:          6px;
-    --nav-btn-icon-len:     1.8rem;
+    --nav-btn-icon-len:     3rem;
     --nav-btn-border-width: 2px;
 
     --hdr-height:  calc(2 * var(--hdr-ver-padding) + var(--hdr-fontsize)*var(--txt-lineheight));
@@ -57,10 +57,6 @@
     --btn-lineheight:       1;
 
     /* Table, Containers and Items */
-    --H: 1; /* this is set in js*/
-    --C: 10; /* todo: set in js*/
-    --nrows: 2; /* todo: set in js*/
-    --ncols: calc((var(--C)) / var(--nrows)); /* todo: ceiling in js*/
 
     --table-ver-padding: 20px;
     --table-gap-frac:    0.2; /*fraction, wrt --item-len*/
@@ -72,14 +68,19 @@
 
     --container-border: 2px;
 
-    /* Compute the items (balls) sizes to use in order to fill the horizontal or the vertical available space: then, use the minimum*/ 
-    --item-len-horfill: calc( (var(--max-width)  - var(--ncols) * 2 * var(--container-border) - 2*var(--hor-padding))
+    /* Compute the items (balls) sizes and number of rows/columns of containers to use in order to fill the 
+        horizontal / vertical available space,in a responsive way */
+
+    /* --H, --nrows, --ncols and --item-len are set by js/script.js --- see there for more details*/ 
+
+    /* Old version -- not 'responsive'. Compute the items (balls) sizes to use in order to fill the horizontal or the vertical available space: then, take the minimum * /
+    /* --item-len-horfill: calc( (var(--max-width)  - var(--ncols) * 2 * var(--container-border) - 2*var(--hor-padding))
           / (var(--ncols) * (1 + 2 * var(--container-padding-frac) + var(--table-gap-frac) )));
 
     --item-len-verfill: calc( (100lvh - var(--nrows) * var(--container-border) - var(--hdr-height) - var(--nav-height) - var(--ftr-height) - 2 * var(--table-ver-padding))
           / (var(--nrows) * (var(--H) + 2 * var(--container-padding-frac) + var(--container-extra-padding-top-frac) + ( var(--H) - 1 ) * var(--container-gap-frac) + var(--container-extra-margin-top-frac)) + ( var(--nrows) - 1) * var(--table-gap-frac) ) );
 
-    --item-len: min(var(--item-len-horfill), var(--item-len-verfill));      
+    --item-len: min(var(--item-len-horfill), var(--item-len-verfill));       */
 
     --container-padding: max(1px, calc(var(--item-len) * var(--container-padding-frac)));
     --container-extra-padding-top: calc(var(--item-len) * var(--container-extra-padding-top-frac));
@@ -264,14 +265,13 @@ button .icon::before{
     width: 100%;
     max-width: var(--max-width);
 
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
+    display: grid;
+    grid-template-columns: repeat(var(--ncols), 1fr);
+    align-items: end;
+    justify-items: center;
     justify-content: space-around;
-    align-content: space-between;
     gap: var(--table-gap); 
-    flex-wrap: wrap;
-    align-content: stretch;
+    align-content: space-evenly;
 
     padding: var(--table-ver-padding) var(--hor-padding);
 }

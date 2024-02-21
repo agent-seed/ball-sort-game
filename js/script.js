@@ -1,6 +1,6 @@
-let N = 8;      // number of full containers / colors
+let N = 10;      // number of full containers / colors
 let K = 2;      // number of empty contantars
-let H = 5;      // max height (items) of each containers
+let H = 3;      // max height (items) of each containers
 let C = N + K;  // number of containers (empty + full)
 
 /* Generic functions ------------------------------------------------------------------------- */
@@ -52,6 +52,26 @@ function removeDescendants(elem){
         removeDescendants(elem.lastChild)
         elem.removeChild(elem.lastChild);
     }
+}
+
+// from: https://stackoverflow.com/a/143889
+// Determines if the passed element is overflowing its bounds,
+// either vertically or horizontally.
+// Will temporarily modify the "overflow" style to detect this
+// if necessary.
+function checkOverflow(el)
+{
+   var curOverflow = el.style.overflow;
+
+   if ( !curOverflow || curOverflow === "visible" )
+      el.style.overflow = "hidden";
+
+   var isOverflowing = el.clientWidth < el.scrollWidth 
+      || el.clientHeight < el.scrollHeight;
+
+   el.style.overflow = curOverflow;
+
+   return isOverflowing;
 }
 
 /* Game object, which has C containers and N*H items within them ---------------------------- */
@@ -279,6 +299,78 @@ function initItemsColorsCSSClasses(){
         //     </div>
         // </div>
 
+function setNumberOfRowsAndCols(){
+    // Note: this function needs to be called on window resize events too
+
+    const maxRows = 4;
+
+    // Let R be the set of all possible values of the number of rows
+    // This functions enables the computation of the optimal number of rows (and columns) of containers among R,
+    // and the size of the items (balls) to be use, to maximize the space used by table of the game, and make it
+    // fit the whole page.
+    // The interface becomes responsive
+
+    // It exploits the css variable, so actually what this function does is to define some specific css variables
+    // which depends on the variables defined in /css/style.css
+
+    // It is assumed that containers are organized in --nrows rows and --ncols = ceil(C/--nrows) columns, where
+    //--C is the number of containers.
+
+    // Also, most of the properties of the containers/items are defined as a fraction of the items length 
+    // (--item-len), also to simplify the following computations. These are defined by the variable names ending 
+    // with ...-frac.
+
+    // This function also computes the number of columns, given the number of rows and of containers (C).
+    // This is done in JS because ceil() function is neeeded, and currently css round('up') is not widely supported
+    
+    let itemLenStr = '';
+
+    for (let nrows=1; nrows<=maxRows; nrows++){
+        // For each possible value of rows in R, compute the item size (--item-len-i) which fit the table of the 
+        // game in the current page
+        document.documentElement.style.setProperty(`--nrows-${nrows}`, nrows.toString());
+        document.documentElement.style.setProperty(`--ncols-${nrows}`, Math.ceil(C/nrows).toString());
+
+        // First, the size that the items should have to fill the available horizontal space is computed 
+        // (--item-len-horfill-i). The available horizontal space is equal to the --max-width of the page content
+        // minus the table left/right padding and the sum of the border of the containers in a row (in general,
+        // the fixed width dimensions are to be subtracted here). This available space is divided by the total 
+        // occupied space of the remaining items, normalized by --item-len (ie, considering the ...-frac 
+        // variables). This way we find --item-len-horfill-i.
+        let itemLenHorfillIStr = `calc( (var(--max-width)  - var(--ncols-${nrows}) * 2 * var(--container-border) - 2*var(--hor-padding)) / (var(--ncols-${nrows}) * (1 + 2 * var(--container-padding-frac) + var(--table-gap-frac) )))`
+        document.documentElement.style.setProperty(`--item-len-horfill-${nrows}`, itemLenHorfillIStr);
+ 
+        // Second, the size that the items should have to fill the available vertical space is computed 
+        // (--item-len-verfill). This is done similarly to the previous case. However, the available space is the 
+        // total viewport height, minus the header, nav and footer height, as well as the table padding.
+        let itemLenVerfillIStr = `calc( (100lvh - var(--nrows-${nrows}) * var(--container-border) - var(--hdr-height) - var(--nav-height) - var(--ftr-height) - 2 * var(--table-ver-padding)) / (var(--nrows-${nrows}) * (var(--H) + 2 * var(--container-padding-frac) + var(--container-extra-padding-top-frac) + ( var(--H) - 1 ) * var(--container-gap-frac) + var(--container-extra-margin-top-frac)) + ( var(--nrows-${nrows}) - 1) * var(--table-gap-frac) ) )`;
+        document.documentElement.style.setProperty(`--item-len-verfill-${nrows}`, itemLenVerfillIStr);
+    
+        // The minimum of the two (--item-len-horfill-i, --item-len-verfill-i) is used as --item-len, in order
+        // to fit in both the horizontal and vertical available space.
+        let itemLenIStr = `min(var(--item-len-horfill-${nrows}), var(--item-len-verfill-${nrows}))`;
+        document.documentElement.style.setProperty(`--item-len-${nrows}`, itemLenIStr);
+
+        itemLenStr += `${nrows==1?'':', '} var(--item-len-${nrows})`;
+    }
+
+    // Now chose the size of each item (--item-len) as the maximum among the computed ones, ie --item-len-1,
+    // --item-len-2, ...
+    document.documentElement.style.setProperty(`--item-len`, `max(${itemLenStr})`);
+
+    // The actual number of rows is computed in javascript, as the value which avoids overflow */
+    // To select the actual number of nrows corresponding to the 'optimal' --item-len, try using each possible 
+    // pair of number of columns and rows, keeping the same 'optimal' --item-len
+    // Select the pair which does not overflow the page
+    for (let nrows=maxRows; nrows>0; nrows--){
+        document.documentElement.style.setProperty("--nrows", nrows.toString());
+        document.documentElement.style.setProperty("--ncols", Math.ceil(C/nrows).toString());
+
+        if (!checkOverflow(document.body))
+            return;
+    }
+}
+
 function createTableHTML(table){
     // Set the current H
     // document.documentElement is ::root
@@ -310,6 +402,8 @@ function createTableHTML(table){
 
      // Apply the created table to the main html
      document.querySelector('main').appendChild(table_div);
+
+     setNumberOfRowsAndCols();
 }
 
 function deleteTableHTML(){
@@ -454,6 +548,9 @@ function init(){
 
     undotBtn = document.querySelector('button.undo');
     undotBtn.addEventListener('click',undoBtn_callback);
+
+
+    window.addEventListener('resize',setNumberOfRowsAndCols);
 
     // Create a new game
     newGame();
