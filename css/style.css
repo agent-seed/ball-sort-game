@@ -324,13 +324,15 @@ button .icon::before{
     z-index: 2;
 }
 
-
-.container .item.move:last-child{
-    transform: scale(var(--item-scale-factor))  translateY(var(--item-offset-move));
+.container .item.move{
+    transform: scale(1)  translateY(var(--item-offset-move));
     opacity: 0;
     z-index: 2;
 }
 
+.container .item.move:last-child{
+    transform: scale(var(--item-scale-factor))  translateY(var(--item-offset-move));
+}
 
 
 /* || Icons sources */

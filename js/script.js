@@ -1,7 +1,11 @@
 let N = 10;      // number of full containers / colors
 let K = 2;      // number of empty contantars
-let H = 3;      // max height (items) of each containers
+let H = 5;      // max height (items) of each containers
 let C = N + K;  // number of containers (empty + full)
+
+let SingleMove = false;
+
+let TIME_TRANSITIONS = 150; // todo: take from the css file
 
 /* Generic functions ------------------------------------------------------------------------- */
 function randomInt(min, max) {
@@ -110,14 +114,12 @@ function Game(){
 }
 
 
-Game.prototype.makeMove = function(fromIdx,toIdx){
-    // this returns 'false' if the move is not performed, 'true' otherwise
-
+Game.prototype.isMoveAllowed = function(fromIdx,toIdx){
     // get the number of items in the two containers
     let fromN = this.table[fromIdx].length;
     let toN   = this.table[toIdx].length
 
-    let strTmp = `${fromIdx}>${toIdx} : [${this.table[fromIdx]}] > [${this.table[toIdx]}]`; // debug
+    // let strTmp = `${fromIdx}>${toIdx} : [${this.table[fromIdx]}] > [${this.table[toIdx]}]`; // debug
     
     // the move is not allowed if:
     // 1) source and destination coincide, or
@@ -127,23 +129,32 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
     //    and destination do not match
     if (fromIdx == toIdx || fromN == 0 || toN == H
             || (toN > 0 && this.table[fromIdx][fromN-1] != this.table[toIdx][toN-1]) ){
-        console.log(strTmp,` ---> no move`); // debug
+        // console.log(strTmp,` ---> no move`); // debug
         return false;
+    } else {
+        // console.log(strTmp,` ---> [${this.table[fromIdx]}] > [${this.table[toIdx]}]`); // debug
+        return true;
+    }
+};
+
+Game.prototype.makeMove = function(fromIdx,toIdx){
+    // this returns 'false' if the move is not performed, 'true' otherwise
+    let performedMoves = 0;
+
+     while (this.isMoveAllowed(fromIdx,toIdx) ){
+        this.table[toIdx].push(this.table[fromIdx].pop());
+        this.moves.push([fromIdx,toIdx]);
+
+        // this.makeMoveReverse(toIdx,fromIdx);  // debug
+        // this.table[toIdx].push(this.table[fromIdx].pop());  // debug
+
+        performedMoves++;
+
+        if (SingleMove)
+            break;
     }
  
-    // move allowed: do it
-    this.table[toIdx].push(this.table[fromIdx].pop());
-   
-    this.moves.push([fromIdx,toIdx]);
-
-    console.log(strTmp,` ---> [${this.table[fromIdx]}] > [${this.table[toIdx]}]`); // debug
- 
-    
-    // this.makeMoveReverse(toIdx,fromIdx);  // debug
-    // this.table[toIdx].push(this.table[fromIdx].pop());  // debug
-
-
-    return true;
+    return performedMoves;
  };
 
  Game.prototype.undoLastMove = function(){
@@ -343,7 +354,7 @@ function setNumberOfRowsAndCols(){
         // Second, the size that the items should have to fill the available vertical space is computed 
         // (--item-len-verfill). This is done similarly to the previous case. However, the available space is the 
         // total viewport height, minus the header, nav and footer height, as well as the table padding.
-        let itemLenVerfillIStr = `calc( (100lvh - var(--nrows-${nrows}) * var(--container-border) - var(--hdr-height) - var(--nav-height) - var(--ftr-height) - 2 * var(--table-ver-padding)) / (var(--nrows-${nrows}) * (var(--H) + 2 * var(--container-padding-frac) + var(--container-extra-padding-top-frac) + ( var(--H) - 1 ) * var(--container-gap-frac) + var(--container-extra-margin-top-frac)) + ( var(--nrows-${nrows}) - 1) * var(--table-gap-frac) ) )`;
+        let itemLenVerfillIStr = `calc( (100dvh - var(--nrows-${nrows}) * var(--container-border) - var(--hdr-height) - var(--nav-height) - var(--ftr-height) - 2 * var(--table-ver-padding)) / (var(--nrows-${nrows}) * (var(--H) + 2 * var(--container-padding-frac) + var(--container-extra-padding-top-frac) + ( var(--H) - 1 ) * var(--container-gap-frac) + var(--container-extra-margin-top-frac)) + ( var(--nrows-${nrows}) - 1) * var(--table-gap-frac) ) )`;
         document.documentElement.style.setProperty(`--item-len-verfill-${nrows}`, itemLenVerfillIStr);
     
         // The minimum of the two (--item-len-horfill-i, --item-len-verfill-i) is used as --item-len, in order
@@ -447,7 +458,21 @@ function restartGame(){
 }
 
 
-let TIME_TRANSITIONS = 50; // todo: take from the css file
+function selectFromContainer(thisContainer_div){
+    if (thisContainer_div.lastElementChild != null){ /* #1 */
+        fromContainer_div = thisContainer_div;
+        fromContainer_div.classList.add('selected');
+        console.log(`Container ${thisContainer_div.id} selected`);
+    } else {
+        console.log(`Container ${thisContainer_div.id} not selected (it is empty)`);
+    }
+}
+
+function unselectFromContainer(){
+    console.log(`Container ${fromContainer_div.id} unselected`);
+    fromContainer_div.classList.remove('selected');
+    fromContainer_div = undefined;
+}
 
 function containerClick_callback(e){
 
@@ -460,54 +485,60 @@ function containerClick_callback(e){
         // The 'from' container for a move is already set
         if (thisContainer_div === fromContainer_div){
             // Ignore the move if this container is the 'from' one
-            fromContainer_div.classList.remove('selected');
-            fromContainer_div = undefined;
-            console.log(`Container ${thisContainer_div.id} unselected (move ignored)`);
+            unselectFromContainer();
         } else {
             // Check if the move can be performed: if so, apply the modification to the DOM
-            if (game.makeMove(fromContainer_div.id, thisContainer_div.id)){
-                console.log(`Moving from ${fromContainer_div.id} to ${thisContainer_div.id}`);
+            let numberOfMovesToDo = game.makeMove(fromContainer_div.id, thisContainer_div.id);
+
+            if (numberOfMovesToDo>0){
+
+                console.log(`Moving ${numberOfMovesToDo} items from ${fromContainer_div.id} to ${thisContainer_div.id}`);
 
                 // disable pointer events
                 table_div.style.pointerEvents = 'none';
 
-                // The item to move exists by construction (see #1 comment below)
-                let itmToMove = fromContainer_div.lastElementChild;
-                itmToMove.classList.add('move');
+                // The item to move exists by construction (see #1 comment from function selectFromContainer)
 
-                // Wait for the animation (item out)
+                // Old version: single move
+                // let itmToMove = fromContainer_div.lastElementChild;
+                // itmToMove.classList.add('move');
+                // New version: move numberOfMovesToDo items
+                let itmsToMove = [... fromContainer_div.children].slice(-numberOfMovesToDo);
+                itmsToMove.forEach((itm) => {itm.classList.add('move')} );
+
+                // Wait for the animation (item out 'from' container)
                 setTimeout(function() {
-                    fromContainer_div.classList.remove('selected');
-                    fromContainer_div = undefined;
-                    thisContainer_div.appendChild(itmToMove);
+                    unselectFromContainer();
 
-                    // Wait for the animation (item in)
+                    // Old version: single move
+                    // thisContainer_div.appendChild(itmToMove);
+                    // New version: move numberOfMovesToDo items
+                    itmsToMove.forEach((itm) => {thisContainer_div.appendChild(itm)} );
+
+                    // Wait for the animation (item in 'this' container)
                     setTimeout(function() {
-                        itmToMove.classList.remove('move');
+                        // Old version: single move
+                        // itmToMove.classList.remove('move');
+                        // New version: move numberOfMovesToDo items
+                        itmsToMove.forEach((itm) => {itm.classList.remove('move')} );
+
                         // re-enable pointer events
                         table_div.style.pointerEvents = 'auto';
                     }, TIME_TRANSITIONS);
                 }, TIME_TRANSITIONS);
-                return;
             } else {
-                /* The move cannot be performed */
+                /* The move cannot be performed: change the selected 'from' container to this containter */
                 console.log(`Cannot move from ${fromContainer_div.id} to ${thisContainer_div.id} !`);
 
                 /* todo: add animation */
 
-                fromContainer_div.classList.remove('selected');
-                fromContainer_div = undefined;
+                unselectFromContainer();
+                selectFromContainer(thisContainer_div);
             }
         }
     } else {
         // Set the 'from' container for a move, if there is at least an element to move
-        if (thisContainer_div.lastElementChild != null){ /* #1 */
-            fromContainer_div = thisContainer_div;
-            fromContainer_div.classList.add('selected');
-            console.log(`Container ${thisContainer_div.id} selected`);
-        } else {
-            console.log(`Container ${thisContainer_div.id} not selected (it is empty)`);
-        }
+        selectFromContainer(thisContainer_div);
     }
 }
 
