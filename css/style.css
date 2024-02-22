@@ -274,6 +274,7 @@ button .icon::before{
     align-content: space-evenly;
 
     padding: var(--table-ver-padding) var(--hor-padding);
+    touch-action: manipulation;
 }
 
 .container{
@@ -305,8 +306,12 @@ button .icon::before{
     width: var(--item-len);
     border-radius: var(--item-radius);
     background-image: radial-gradient(circle at center, rgb(255,255,255,60%) 2%, rgb(255,255,255,0%) 100%);
-    transition: transform var(--item-transition-time), opacity var(--item-transition-time), scale var(--item-transition-time);
+    transition: transform var(--item-transition-time), opacity var(--item-transition-time), scale var(--item-transition-time), background-color var(--item-transition-time);
     user-select: none;
+}
+
+.item.hidden{
+    background-color: var(--col-black) !important;
 }
 
 

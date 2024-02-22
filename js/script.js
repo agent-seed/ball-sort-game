@@ -3,7 +3,8 @@ let K = 2;      // number of empty contantars
 let H = 5;      // max height (items) of each containers
 let C = N + K;  // number of containers (empty + full)
 
-let SingleMove = true;
+let singleMove = false;
+let hideInitial = true;
 
 let TIME_TRANSITIONS = 150; // todo: take from the css file
 
@@ -144,7 +145,7 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
         performedMoves++;
         this.table[toIdx].push(this.table[fromIdx].pop());
 
-        if (SingleMove){
+        if (singleMove){
             // this.makeMoveReverse(toIdx,fromIdx);  // debug
             // this.table[toIdx].push(this.table[fromIdx].pop());  // debug
             break;
@@ -407,6 +408,9 @@ function createTableHTML(table){
            item_div = document.createElement('div');
            item_div.classList.add('item');
            item_div.classList.add('I' + container[j]);
+           if (hideInitial && j<container.length-1){
+                item_div.classList.add('hidden');
+           }
            container_div.appendChild(item_div);
         }
      
@@ -511,12 +515,17 @@ function containerClick_callback(e){
 
                 // Wait for the animation (item out 'from' container)
                 setTimeout(function() {
-                    unselectFromContainer();
 
                     // Old version: single move
                     // thisContainer_div.appendChild(itmToMove);
                     // New version: move numberOfMovesToDo items
                     itmsToMove.forEach((itm) => {thisContainer_div.appendChild(itm)} );
+
+                    if (hideInitial && fromContainer_div.hasChildNodes()){
+                        fromContainer_div.lastElementChild.classList.remove('hidden'); // if present
+                    }
+
+                    unselectFromContainer();
 
                     // Wait for the animation (item in 'this' container)
                     setTimeout(function() {
