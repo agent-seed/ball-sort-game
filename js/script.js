@@ -3,7 +3,7 @@ let K = 2;      // number of empty contantars
 let H = 5;      // max height (items) of each containers
 let C = N + K;  // number of containers (empty + full)
 
-let SingleMove = false;
+let SingleMove = true;
 
 let TIME_TRANSITIONS = 150; // todo: take from the css file
 
@@ -109,8 +109,7 @@ function Game(){
     this.initialTable  =  deepCopyMatrix(this.table);
 
     // Initialize the moves performed
-    this.moves = [];
-
+    this.moves = [];  // elements: [fromCntIdx, toCntIdx, numOfItemsMoved]
 }
 
 
@@ -141,24 +140,26 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
     // this returns 'false' if the move is not performed, 'true' otherwise
     let performedMoves = 0;
 
-     while (this.isMoveAllowed(fromIdx,toIdx) ){
-        this.table[toIdx].push(this.table[fromIdx].pop());
-        this.moves.push([fromIdx,toIdx]);
-
-        // this.makeMoveReverse(toIdx,fromIdx);  // debug
-        // this.table[toIdx].push(this.table[fromIdx].pop());  // debug
-
+    while (this.isMoveAllowed(fromIdx,toIdx) ){
         performedMoves++;
+        this.table[toIdx].push(this.table[fromIdx].pop());
 
-        if (SingleMove)
+        if (SingleMove){
+            // this.makeMoveReverse(toIdx,fromIdx);  // debug
+            // this.table[toIdx].push(this.table[fromIdx].pop());  // debug
             break;
+        }
     }
- 
+    
+    if (performedMoves){
+        this.moves.push([fromIdx,toIdx,performedMoves]);
+    }
+
     return performedMoves;
  };
 
  Game.prototype.undoLastMove = function(){
-    // this returns '[]' if the move is not performed, '[fromIdx,toIdx]' otherwise
+    // this returns '[]' if the move is not performed, '[fromIdx,toIdx,numOfItemsMoved]' otherwise
     // (ie, the move performed to undo the last one)
 
     // if there are not previous moves, return false
@@ -166,17 +167,19 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
         return [];
     }
 
-    let lastMove = this.moves.pop();
-    let fromIdx = lastMove[1]; 
-    let toIdx = lastMove[0];
-    let strTmp = `Undo last move, ${fromIdx}>${toIdx} : [${this.table[fromIdx]}] > [${this.table[toIdx]}]`; // debug
+    let lastMove        = this.moves.pop();
+    let fromIdx         = lastMove[1]; // the old move 'toCntIdx'
+    let toIdx           = lastMove[0]; // the old move 'fromCntIdx'
+    let numOfItemsMoved = lastMove[2];
+    // let strTmp = `Undo last move, moving ${numOfItemsMoved} items, ${fromIdx}>${toIdx} : [${this.table[fromIdx]}] > [${this.table[toIdx]}]`; // debug
  
-    // undo last move
-    this.table[toIdx].push(this.table[fromIdx].pop());
+    // undo last moves
+    for (let i=0; i<numOfItemsMoved; i++)
+        this.table[toIdx].push(this.table[fromIdx].pop());
    
-    console.log(strTmp,` ---> [${this.table[fromIdx]}] > [${this.table[toIdx]}]`); // debug
+    // console.log(strTmp,` ---> [${this.table[fromIdx]}] > [${this.table[toIdx]}]`); // debug
  
-    return [fromIdx,toIdx];
+    return [fromIdx,toIdx,numOfItemsMoved];
  };
  
  Game.prototype.makeMoveReverse = function(fromIdx,toIdx){
@@ -187,7 +190,7 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
     let fromN = this.table[fromIdx].length;
     let toN   = this.table[toIdx].length
 
-    let strTmp = `*${fromIdx}>${toIdx} : [${this.table[fromIdx]}] > [${this.table[toIdx]}]`; // debug
+    // let strTmp = `*${fromIdx}>${toIdx} : [${this.table[fromIdx]}] > [${this.table[toIdx]}]`; // debug
 
     // the reverse move is not allowed if:
     // 1) source and destination coincide, or
@@ -197,14 +200,14 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
     //    do not match
     if (fromIdx == toIdx || fromN == 0 || toN == H
         || (fromN>1 && this.table[fromIdx][fromN-1] != this.table[fromIdx][fromN-2]) ){
-        console.log(strTmp,` ---> no move`); // debug
+        // console.log(strTmp,` ---> no move`); // debug
         return false;
     }
 
     // reverse move allowed: do it
     this.table[toIdx].push(this.table[fromIdx].pop());
    
-    console.log(strTmp,` ---> [${this.table[fromIdx]}] > [${this.table[toIdx]}]`); // debug
+    // console.log(strTmp,` ---> [${this.table[fromIdx]}] > [${this.table[toIdx]}]`); // debug
     
     // this.table.makeMove(toIdx,fromIdx);  // debug
     // this.table[toIdx].push(this.table[fromIdx].pop());  // debug
@@ -557,11 +560,14 @@ function undoBtn_callback(){
     if (lastMove.length){
         let fromIdx = lastMove[0];
         let toIdx = lastMove[1];
+        let numOfItemsMoved = lastMove[2];
 
-        console.log(`Undo last move, moving from ${container_divs[fromIdx].id} to ${container_divs[toIdx].id}`);
+        console.log(`Undo last move, moving ${numOfItemsMoved} items from ${container_divs[fromIdx].id} to ${container_divs[toIdx].id}`); // debug
 
-        let itmToMove = container_divs[fromIdx].lastElementChild;
-        container_divs[toIdx].appendChild(itmToMove);
+        for (let i=0; i<numOfItemsMoved; i++){
+            let itmToMove = container_divs[fromIdx].lastElementChild;
+            container_divs[toIdx].appendChild(itmToMove);
+        }
     }
 }
 
