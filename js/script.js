@@ -1,12 +1,18 @@
-let N = 10;      // number of full containers / colors
-let K = 2;      // number of empty contantars
-let H = 5;      // max height (items) of each containers
-let C = N + K;  // number of containers (empty + full)
+let N;      // number of full containers / colors
+let K;      // number of empty contantars
+let H;      // max height (items) of each containers
+let moveAsManyItemsAsPossible;
+let hideInitial;
 
-let singleMove = false;
-let hideInitial = true;
+settingsInfo = {
+    N: {min: 2, max: 13, default: 8, type: 'slider'},
+    K: {min: 1, max: 3,  default: 2, type: 'slider'},
+    H: {min: 3, max: 6,  default: 5, type: 'slider'},
+    moveAsManyItemsAsPossible: {default: true, type: 'checkbox'},
+    hideInitial:               {default: false, type: 'checkbox'}
+}
 
-let TIME_TRANSITIONS = 150; // todo: take from the css file
+let TIME_TRANSITIONS = 60; // todo: take from the css file
 
 /* Generic functions ------------------------------------------------------------------------- */
 function randomInt(min, max) {
@@ -145,7 +151,7 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
         performedMoves++;
         this.table[toIdx].push(this.table[fromIdx].pop());
 
-        if (singleMove){
+        if (!moveAsManyItemsAsPossible){
             // this.makeMoveReverse(toIdx,fromIdx);  // debug
             // this.table[toIdx].push(this.table[fromIdx].pop());  // debug
             break;
@@ -329,7 +335,7 @@ function setNumberOfRowsAndCols(){
     // which depends on the variables defined in /css/style.css
 
     // It is assumed that containers are organized in --nrows rows and --ncols = ceil(C/--nrows) columns, where
-    //--C is the number of containers.
+    //C is the number of containers.
 
     // Also, most of the properties of the containers/items are defined as a fraction of the items length 
     // (--item-len), also to simplify the following computations. These are defined by the variable names ending 
@@ -581,20 +587,95 @@ function undoBtn_callback(){
 }
 
 
-/* || Animation */
+/* || Setting dialog */
+
+function initSettings(){
+    N = settingsInfo.N.default;
+    K = settingsInfo.K.default;
+    H = settingsInfo.H.default;
+    C = N + K; // number of containers (empty + full)
+    moveAsManyItemsAsPossible = settingsInfo.moveAsManyItemsAsPossible.default;
+    hideInitial = settingsInfo.hideInitial.default;
+
+    initSettingsDialog();
+}
+
+function initSettingsDialog(){
+    for (let param in settingsInfo){
+        switch (settingsInfo[param].type){
+            case 'slider':
+                let slider = document.querySelector(`.slider-container#set-${param} .slider`);
+                let sliderDiv = document.createElement('div');
+                slider.appendChild(sliderDiv);
+
+                noUiSlider.create(sliderDiv, {
+                    start: [settingsInfo[param].default],
+                    connect: [true, false],
+                    range: {
+                        'min': settingsInfo[param].min,
+                        'max': settingsInfo[param].max
+                    },
+                    format: {
+                        // 'to' the formatted value. Receives a number.
+                        to: function (value) {
+                            return Math.round(value);
+                        },
+                        // 'from' the formatted value.
+                        // Receives a string, should return a number.
+                        from: function (value) {
+                            return value;
+                        }
+                    },
+                    tooltips: true,
+                    step: 1
+                });
+                // /* Just for testing: parameters are not set this way */
+                // sliderDiv.noUiSlider.on('change', function (values, handle) {
+                //     switch(param){
+                //         case 'N':
+                //             N=values[handle];
+                //             C=N+K;
+                //             break;
+                //         case 'K':
+                //             K=values[handle];
+                //             C=N+K;
+                //             break;
+                //         case 'H':
+                //             H=values[handle];
+                //             break;
+                //     }
+                //     newGame(); // no call it on dialog close
+                // });
+                break;
+            case 'checkbox':
+                let checkbox = document.querySelector(`.checkboxes input#set-${param}`);
+                checkbox.checked = settingsInfo[param].default;
+                break;
+        }
+    }
+}
+
+
+/* || Initailization */
 
 function init(){
     initItemsColorsCSSClasses();
+    initSettings();
 
-    newBtn = document.querySelector('button.new');
+    let newBtn = document.querySelector('button.new');
     newBtn.addEventListener('click',newBtn_callback);
 
-    restartBtn = document.querySelector('button.restart');
+    let restartBtn = document.querySelector('button.restart');
     restartBtn.addEventListener('click',restartBtn_callback);
 
-    undotBtn = document.querySelector('button.undo');
+    let undotBtn = document.querySelector('button.undo');
     undotBtn.addEventListener('click',undoBtn_callback);
 
+    let settingsBtn = document.querySelector('button.settings');
+    let settingsDialog = document.querySelector('dialog.settings');
+    let settingsDialogCancelBtn = document.querySelector('dialog.settings .dialog-buttons button.cancel');
+    settingsBtn.addEventListener('click', () => settingsDialog.showModal());
+    settingsDialogCancelBtn.addEventListener('click', () => settingsDialog.close());
 
     window.addEventListener('resize',setNumberOfRowsAndCols);
 

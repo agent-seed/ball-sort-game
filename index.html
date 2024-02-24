@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ball Sort Game</title>
+    <link href="node_modules/nouislider/dist/nouislider.css" rel="stylesheet">
+    <script src="node_modules/nouislider/dist/nouislider.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.4.2/css/all.css">
     <link rel="stylesheet" href="./css/style.css">
     <script src='./js/script.js' defer></script>
@@ -23,10 +25,45 @@
             <div class="flex-separator"></div>
             <button type="button" class="solve" disabled><div class="icon"></div><div class="txt">Solve</div></button>
             <button type="button" class="rules" disabled><div class="icon"></div><div class="txt">Rules</div></button>
-            <button type="button" class="settings" disabled><div class="icon"></div><div class="txt">Settings</div></button>
+            <button type="button" class="settings"><div class="icon"></div><div class="txt">Settings</div></button>
         </div>
     </nav>
     
+    <dialog class='settings'>
+        <div class='settings-div'>
+            <div class="sliders">
+                <div class="slider-container" id="set-N">
+                    <div class="slider"></div>
+                    <div class="label">Number of colors</div>
+                </div>
+                <div  class="slider-container" id="set-K">
+                    <div class="slider"></div>
+                    <div class="label">Number of empty containers</div>
+                </div>
+                <div  class="slider-container" id="set-H">
+                    <div class="slider"></div>
+                    <div class="label">Max number of items per container</div>
+                </div>
+            </div>
+            <div class="checkboxes">
+                <label>
+                    <input type="checkbox" id="set-moveAsManyItemsAsPossible" name="moveAsManyItemsAsPossible"/>
+                    <div class="checkbox-styled"></div>
+                    Move as many items as possible.
+                </label>
+                <label>
+                    <input type="checkbox" id="set-hideInitial" name="hideInitial"/>
+                    <div class="checkbox-styled"></div>
+                    Initially, show only the items at the top.
+                </label>
+            </div>
+            <div class="dialog-buttons">
+                <button type="button" class="cancel">Cancel</button>
+                <button type="button" class="save">Save</button>
+            </div>
+        </div>
+    </dialog>
+
     <main>
     </main>
     

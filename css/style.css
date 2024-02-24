@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat&family=Lato&display=swap');
 
-:root {
+:root,
+::backdrop {
     /* Colors (palette)*/
     --col-purewhite:    white;
     --col-white:        #FAF8ED;
@@ -33,6 +34,7 @@
     --txt-lineheight:   1.2;
     --hdr-fontsize:     2rem;
     --nav-btn-fontsize: 0.8rem;
+    --dialog-btn-fontsize: 2rem;
 
     /* Maximum width (including dashboard margin) */
     --max-width:        min(1440px, 100vw);
@@ -55,6 +57,40 @@
     --btn-focus-offset:     1px;
     --btn-focus-width:      2px;
     --btn-lineheight:       1;
+
+    /* Dialog and settings*/
+    --dialog-bg-col: var(--col-white);
+    --dialog-border: 3px solid var(--col-accent-dark);
+
+    --dialog-sections-bg-col: var(--col-purewhite);
+
+    --dialog-padding:           4vw;    /* overwritten on larger screens */
+    --dialog-sections-padding:  2vw 3vw; /* overwritten on larger screens */
+    --settings-gap:             6vw; /* overwritten on larger screens */
+    --settings-sliders-gap:     2vw; /* overwritten on larger screens */
+
+    --dialog-btn-height:       5rem;
+    --dialog-btn-width:        12rem;
+    --dialog-btn-gap:          6px;
+    --dialog-btn-border-width: 2px;
+
+    --dialog-padding-largescreen:           1.5vw;
+    --dialog-sections-padding-largescreen:  0.8vw 1.5vw;
+    --settings-gap-largescreen:             1.5vw;
+    --settings-sliders-gap-largescreen:     1vw;
+
+    --checkbox-size: max(32px,1em);
+    --checkbox-border-size: 2px;
+    --checkbox-border-col: var(--col-white);
+    --checkbox-bg-col-checked: var(--col-accent-light);
+    --checkbox-inner-outline-checked-gap: 3px;
+    --checkbox-inner-outline-checked: 3px;
+
+    --settings-checkboxes-gap:  0.5vw;
+    --settings-sliders-gap-hor: 10px;
+    --settings-fontsize:        1.8rem;
+
+    --sliders-gap-hor:          6px;
 
     /* Table, Containers and Items */
 
@@ -106,6 +142,10 @@
     --item-offset-selected: calc(-1 * var(--item-len) / 8);
     --item-offset-move: calc(-1 * var(--item-len) * 1 + var(--item-offset-selected));
 
+}
+
+::backdrop{
+    background-color: var(--col-accent-dark);
 }
 
 
@@ -184,7 +224,6 @@ nav{
 .nav-btns {
     --btn-height: var(--nav-btn-height);
     --btn-width: var(--nav-btn-width);
-    --btn-gap: var(--nav-btn-gap);
     --btn-icon-len: var(--nav-btn-icon-len);
     --btn-fontsize: var(--nav-btn-fontsize);
     --btn-border-width: var(--nav-btn-border-width);
@@ -192,7 +231,7 @@ nav{
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--btn-gap);
+    gap: var(--nav-btn-gap);
     max-width: var(--max-width);
     margin: 0 auto;
 }
@@ -209,7 +248,7 @@ button{
     font-size: var(--btn-fontsize);
     line-height: var(--btn-lineheight);
     border-radius: var(--radius);
-    vertical-align: center;
+    vertical-align: middle;
     display:inline-flex;
     align-items: center;
     justify-content: center;
@@ -337,6 +376,268 @@ button .icon::before{
 
 .container .item.move:last-child{
     transform: scale(var(--item-scale-factor))  translateY(var(--item-offset-move));
+}
+
+/* || Generic dialog */
+
+dialog{
+    max-width:          calc(var(--max-width) - 2 * var(--hor-padding) );
+    padding:            var(--dialog-padding);
+    border:             var(--dialog-border);
+    border-radius:      var(--radius);
+    background-color:   var(--dialog-bg-col); 
+    z-index:            100;
+
+    /*center it in the page*/
+    /* top: 50%;
+    transform: translateY(-50%);
+    margin: 0 auto;  */
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+/* || Settings dialog */
+
+dialog.settings .settings-div{
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+        "sliders"
+        "checkboxes"
+        "dialog-buttons";
+    gap: var(--settings-gap);
+}
+
+dialog.settings .sliders{
+    grid-area: sliders;
+    display: flex;
+    flex-direction: column;
+    gap: var(--settings-sliders-gap);
+}
+dialog.settings .checkboxes{
+    grid-area: checkboxes;
+    display: flex;
+    flex-direction: column;
+    gap: var(--settings-checkboxes-gap);
+
+    background-color: var(--dialog-sections-bg-col);
+    padding: var(--dialog-sections-padding);
+    border-radius: var(--radius);
+}
+dialog.settings .dialog-buttons{
+    --btn-height: var(--dialog-btn-height);
+    --btn-width: var(--dialog-btn-width);
+    --btn-fontsize: var(--dialog-btn-fontsize);
+    --btn-border-width: var(--dialog-btn-border-width);
+
+    grid-area: dialog-buttons;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    gap: var(--dialog-btn-gap);
+}
+
+
+dialog.settings .sliders .slider-container{
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+        "label"
+        "slider";
+    gap: var(--settings-sliders-gap-hor);
+
+    background-color: var(--dialog-sections-bg-col);
+    padding: var(--dialog-sections-padding);
+    border-radius: var(--radius);
+}
+dialog.settings .sliders .slider{
+    grid-area: slider;
+}
+dialog.settings .sliders .label{
+    grid-area: label;
+    display: flex;
+    align-items:center;
+    font-size: var(--settings-fontsize);
+}
+
+dialog.settings .checkboxes label{
+    font-size: var(--settings-fontsize);
+    display: grid;
+    grid-template-columns: var(--checkbox-size) auto;
+    gap: 0.5em;
+    align-items: center;
+}
+
+/* https://stackoverflow.com/a/38851846 */
+.checkbox-styled {
+    border: var(--checkbox-border-size) solid var(--checkbox-border-col);
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, .3) inset;
+    border-radius: var(--radius);
+    width: var(--checkbox-size);
+    height: var(--checkbox-size);
+}
+input[type="checkbox"] {
+    display: none;
+}
+input[type="checkbox"]:checked + .checkbox-styled {
+    background-color: var(--checkbox-bg-col-checked);
+    box-shadow: 0px 0px 2px rgba(0, 0, 0, .1) inset;
+    outline: var(--checkbox-inner-outline-checked-gap) solid var(--checkbox-border-col);
+    outline-offset: calc(-1 * var(--checkbox-inner-outline-checked-gap) - var(--checkbox-border-size) - var(--checkbox-inner-outline-checked));
+}
+
+
+/* tablet and desktop */
+@media only screen and (min-width: 768px), (orientation: landscape){
+    :root{
+        --dialog-padding:           var(--dialog-padding-largescreen) !important;
+        --dialog-sections-padding:  var(--dialog-sections-padding-largescreen) !important;
+        --settings-gap:             var(--settings-gap-largescreen) !important;
+        --settings-sliders-gap:     var(--settings-sliders-gap-largescreen) !important;
+    }
+
+    dialog.settings .settings-div{
+        grid-template-columns: max-content 1fr;
+        grid-template-areas: 
+            "sliders    sliders"
+            "checkboxes dialog-buttons";
+    }
+
+    dialog.settings .sliders .slider-container{
+        grid-template-columns: 1fr 2fr;
+        grid-template-areas: 
+            "label slider";
+    }
+
+}
+
+
+.slider{
+    --noUI-target-border-size:      1px; /* default 1px */
+    --noUI-target-content-width:    calc(100% - 2 * var(--noUI-target-border-size) );
+    --noUI-target-content-height:   18px; /* default 18px */
+
+    --noUI-handle-border-size:      3px;  /* default 1px */
+    --noUI-handle-content-width:    32px; /* default 32px */
+    --noUI-handle-content-height:   32px; /* default 26px */
+
+    --noUI-tooltip-padding:     3px;
+    --noUI-tooltip-border-size: 1px;
+    --noUI-tooltip-gap:         4px;
+    
+    --noUI-target-bg-col:       var(--col-purewhite);
+    --noUI-target-border-col:   var(--col-white);
+
+    --noUI-connect-bg-color:    var(--col-accent-light);
+
+    --noUI-handle-bg-col:       var(--col-purewhite);
+    --noUI-handle-border-col:   var(--col-accent-light);
+
+    --noUI-handle-vbar-bg-col:  var(--col-white);
+
+    --noUI-tooltip-col:         var(--col-black);
+    --noUI-tooltip-bg-col:      var(--col-purewhite);
+    --noUI-tooltip-border-col:  var(--col-purewhite);
+
+    --noUI-target-radius:       calc(var(--radius) / 2);
+    --noUI-handle-radius:       50%;
+    --noUI-tooltip-radius:      50%;
+
+    --noUI-handle-vbar-width:   1px;
+    --noUI-handle-vbar-hgap:    1px;
+    --noUI-handle-vbar-height-fr: 0.9;
+
+    --noUI-tooltip-fontsize:    2rem;
+
+    /* Computed variables: do not modify */
+
+    --noUI-handle-vbar-height: calc(var(--noUI-target-content-height) * var(--noUI-handle-vbar-height-fr) );
+
+    --noUi-handle-top: calc( (var(--noUI-target-content-height) - var(--noUI-handle-content-height)) / 2 - var(--noUI-handle-border-size));
+    --noUi-handle-right: calc(-1 * (var(--noUI-handle-content-width) / 2 + var(--noUI-handle-border-size)) );
+
+    --noUI-target-margin-tb: calc( -1 * var(--noUi-handle-top) - var(--noUI-target-border-size));
+    --noUI-target-margin-lr: calc(-1 * var(--noUi-handle-right) - var(--noUI-target-border-size));
+
+    --noUI-tooltip-content-height: var(--noUI-tooltip-fontsize);
+    --noUI-tooltip-content-width:  var(--noUI-tooltip-content-height);
+        
+    --noUI-tooltip-top: calc(-1 * var(--noUI-tooltip-content-height) - 2 * (var(--noUI-tooltip-border-size) + var(--noUI-tooltip-padding) ) - var(--noUI-target-border-size) - var(--noUI-tooltip-gap));
+
+    --noUI-target-extra-margin-top: calc( -1 * var(--noUI-tooltip-top) - var(--noUI-target-border-size));
+
+    --noUI-target-margin: calc(var(--noUI-target-margin-tb) + var(--noUI-target-extra-margin-top)) var(--noUI-target-margin-lr) var(--noUI-target-margin-tb);
+
+    padding: var(--noUI-target-margin);
+}
+
+.slider * {
+    box-sizing: content-box;
+}
+
+.noUi-target{
+    width:              var(--noUI-target-content-width) !important;
+    height:             var(--noUI-target-content-height) !important;
+    background-color:   var(--noUI-target-bg-col);
+    border-color:       var(--noUI-target-border-col);
+    border-width:       var(--noUI-target-border-size) !important;
+    border-radius:      var(--noUI-target-radius);
+}
+    
+.noUi-connect{
+    background-color:   var(--noUI-connect-bg-color);
+    border-radius:      calc(var(--noUI-target-radius) - 2px);
+}
+
+.noUi-handle{
+    width:              var(--noUI-handle-content-width) !important;
+    height:             var(--noUI-handle-content-height) !important;
+    background-color:   var(--noUI-handle-bg-col);
+    border-color:       var(--noUI-handle-border-col);
+    border-width:       var(--noUI-handle-border-size) !important;
+    border-radius:      var(--noUI-handle-radius);
+    top:                var(--noUi-handle-top) !important;
+    right:              var(--noUi-handle-right) !important;
+}
+
+/* .slider,
+.slider .noUi-handle {
+    box-shadow: none;
+} */
+
+.noUi-handle::before,
+.noUi-handle::after {
+    /* display: none; */
+    width:  var(--noUI-handle-vbar-width);
+    height: var(--noUI-handle-vbar-height);
+    background-color: var(--noUI-handle-vbar-bg-col);
+    top:    calc( (var(--noUI-handle-content-height) - var(--noUI-handle-vbar-height)) / 2);
+}
+.noUi-handle::before {
+    left:   calc( var(--noUI-handle-content-width)/2 - var(--noUI-handle-vbar-width) - var(--noUI-handle-vbar-hgap));
+}
+.noUi-handle::after {
+    left:   calc( var(--noUI-handle-content-width)/2 + var(--noUI-handle-vbar-hgap));
+}
+
+.noUi-tooltip{
+    width:              var(--noUI-tooltip-content-width);
+    height:             var(--noUI-tooltip-content-height);
+    padding:            var(--noUI-tooltip-padding);
+    font-size:          var(--noUI-tooltip-fontsize) !important;
+    line-height:        1;
+    color:              var(--noUI-tooltip-col);
+    background-color:   var(--noUI-tooltip-bg-col);
+    border-color:       var(--noUI-tooltip-border-col);
+    border-width:       var(--noUI-tooltip-border-size);
+    border-radius:      var(--noUI-tooltip-radius);
+    display:            flex;
+    align-items:        center;
+    justify-content:    center;
+    top:                var(--noUI-tooltip-top) !important;
 }
 
 
