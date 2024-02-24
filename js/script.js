@@ -9,7 +9,7 @@ settingsInfo = {
     K: {min: 1, max: 3,  default: 2, type: 'slider'},
     H: {min: 3, max: 6,  default: 5, type: 'slider'},
     moveAsManyItemsAsPossible: {default: true, type: 'checkbox'},
-    hideInitial:               {default: false, type: 'checkbox'}
+    hideInitial:               {default: true, type: 'checkbox'}
 }
 
 let TIME_TRANSITIONS = 60; // todo: take from the css file
@@ -117,6 +117,12 @@ function Game(){
 
     // Initialize the moves performed
     this.moves = [];  // elements: [fromCntIdx, toCntIdx, numOfItemsMoved]
+
+    // if hideInitial mode, negative items are hidden
+    if (hideInitial){
+        this.hiddenItems = [...Array(N).fill(H-1),...Array(K).fill(0)];
+        this.initialHiddenItems  =  [...this.hiddenItems];
+    }
 }
 
 
@@ -134,7 +140,8 @@ Game.prototype.isMoveAllowed = function(fromIdx,toIdx){
     // 4) the destination is not empty, but the color (id) of the top items in the source 
     //    and destination do not match
     if (fromIdx == toIdx || fromN == 0 || toN == H
-            || (toN > 0 && this.table[fromIdx][fromN-1] != this.table[toIdx][toN-1]) ){
+            || (toN > 0 && this.table[fromIdx][fromN-1] != this.table[toIdx][toN-1]) 
+            || hideInitial && this.table[fromIdx].length <= this.hiddenItems[fromIdx]){
         // console.log(strTmp,` ---> no move`); // debug
         return false;
     } else {
@@ -162,6 +169,11 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
         this.moves.push([fromIdx,toIdx,performedMoves]);
     }
 
+   
+    if (hideInitial && this.hiddenItems[fromIdx]>0 && this.table[fromIdx].length == this.hiddenItems[fromIdx]){
+        this.hiddenItems[fromIdx]--;
+    }
+    
     return performedMoves;
  };
 
@@ -234,6 +246,8 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
 
  Game.prototype.restart = function(){
     this.table = deepCopyMatrix(this.initialTable);
+    if (hideInitial)
+        this.hiddenItems = [...this.initialHiddenItems];
     this.moves = [];
  };
 
