@@ -669,6 +669,29 @@ function initSettingsDialog(){
     }
 }
 
+function settingsDialogCancelBtn_callback(){
+    document.querySelector(`.slider-container#set-N .slider > div`).noUiSlider.set(N);
+    document.querySelector(`.slider-container#set-K .slider > div`).noUiSlider.set(K);
+    document.querySelector(`.slider-container#set-H .slider > div`).noUiSlider.set(H);
+    document.querySelector(`.checkboxes input#set-moveAsManyItemsAsPossible`).checked = moveAsManyItemsAsPossible;
+    document.querySelector(`.checkboxes input#set-hideInitial`).checked = hideInitial;
+
+    document.querySelector('dialog.settings').close()
+}
+
+
+function settingsDialogSaveBtn_callback(){
+    N = document.querySelector(`.slider-container#set-N .slider > div`).noUiSlider.get();
+    K = document.querySelector(`.slider-container#set-K .slider > div`).noUiSlider.get();
+    H = document.querySelector(`.slider-container#set-H .slider > div`).noUiSlider.get();
+    C = N + K;
+    moveAsManyItemsAsPossible = document.querySelector(`.checkboxes input#set-moveAsManyItemsAsPossible`).checked;
+    hideInitial = document.querySelector(`.checkboxes input#set-hideInitial`).checked;
+
+    newGame();
+    document.querySelector('dialog.settings').close()
+}
+
 
 /* || Initailization */
 
@@ -688,8 +711,10 @@ function init(){
     let settingsBtn = document.querySelector('button.settings');
     let settingsDialog = document.querySelector('dialog.settings');
     let settingsDialogCancelBtn = document.querySelector('dialog.settings .dialog-buttons button.cancel');
+    let settingsDialogSaveBtn = document.querySelector('dialog.settings .dialog-buttons button.save');
     settingsBtn.addEventListener('click', () => settingsDialog.showModal());
-    settingsDialogCancelBtn.addEventListener('click', () => settingsDialog.close());
+    settingsDialogCancelBtn.addEventListener('click', settingsDialogCancelBtn_callback);
+    settingsDialogSaveBtn.addEventListener('click', settingsDialogSaveBtn_callback);
 
     window.addEventListener('resize',setNumberOfRowsAndCols);
 
