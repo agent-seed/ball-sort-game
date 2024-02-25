@@ -749,6 +749,13 @@ function init(){
     let undotBtn = document.querySelector('button.undo');
     undotBtn.addEventListener('click',undoBtn_callback);
 
+    let rulesBtn = document.querySelector('button.rules');
+    let rulesDialog = document.querySelector('dialog.rules');
+    let rulesDialogCloseBtn = document.querySelector('dialog.rules .dialog-buttons button.close');
+    rulesBtn.addEventListener('click', () => rulesDialog.showModal());
+    rulesDialogCloseBtn.addEventListener('click', () => rulesDialog.close());
+
+
     let settingsBtn = document.querySelector('button.settings');
     let settingsDialog = document.querySelector('dialog.settings');
     let settingsDialogCancelBtn = document.querySelector('dialog.settings .dialog-buttons button.cancel');

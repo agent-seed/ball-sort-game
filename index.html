@@ -24,11 +24,58 @@
             <button type="button" class="undo"><div class="icon"></div><div class="txt">Undo</div></button>
             <div class="flex-separator"></div>
             <button type="button" class="solve" disabled><div class="icon"></div><div class="txt">Solve</div></button>
-            <button type="button" class="rules" disabled><div class="icon"></div><div class="txt">Rules</div></button>
+            <button type="button" class="rules"><div class="icon"></div><div class="txt">Rules</div></button>
             <button type="button" class="settings"><div class="icon"></div><div class="txt">Settings</div></button>
         </div>
     </nav>
-    
+
+    <dialog class='rules'>
+        <div class='rules-div'>
+            <h2>Setup and goal</h2>
+
+            <p>
+                There are <span class="highlight">C</span> equal containers, 
+                each one capable of holding up to <span class="highlight">H</span> items (balls).
+            </p>
+            <p>
+                Such items can have <span class="highlight">N</span> different colors.
+                For each color, there are exactly <span class="highlight">H</span> items,
+                so in total there are <span class="highlight">N•H</span> items.
+            </p>
+            <p>
+                Initially, <span class="highlight">N</span> of such containers are filled with these items,randomly sorted, and the remaining <span class="highlight">K=C-N</span> containers are empty.
+            </p>
+            <p>
+                The goal is to move these items among the containers to sort them and have <span class="highlight">N</span> full containers, each one with <span class="highlight">H</span> items of the same color. 
+            </p>
+
+            <h2>Moving rules</h2>
+
+            <p>You can move the item on the top of container <span class="highlight">A</span> to container <span class="highlight">B</span> if either:</p>
+            <ul>
+                <li><span class="highlight">B</span> is empty, or</li>
+                <li>the top item in <span class="highlight">B</span> has the same color of the item to move.</li>
+            </ul>
+            
+            <p>As an additional rule, you can:</p>
+            <ul>
+                <li>move as many items of the same color as possible, from <span class="highlight">A</span> to <span class="highlight">B</span>, or</li>
+                <li>move only one item at a time, from <span class="highlight">A</span> to <span class="highlight">B</span>.</li>
+            </ul>
+
+            <p>Finally, you can optionally choose to initially hide the color of all the items except the top one in each containers.
+            <br>The color of such items is revealed as soon as they become the top items.</p>
+
+            <h2>Resources</h2>
+
+            <p>See <a href="http://kociemba.org/themen/waterball/colorsort.html">here</a> for more details on how to solve the game.</p>
+
+            <div class="dialog-buttons">
+                <button type="button" class="close">Close</button>
+            </div>
+        </div>
+    </dialog>
+
     <dialog class='settings'>
         <div class='settings-div'>
             <div class="sliders">

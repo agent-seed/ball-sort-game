@@ -296,7 +296,17 @@ button .icon::before{
     background-color: var(--btn-col);
 }
 
+.dialog-buttons{
+    --btn-height: var(--dialog-btn-height);
+    --btn-width: var(--dialog-btn-width);
+    --btn-fontsize: var(--dialog-btn-fontsize);
+    --btn-border-width: var(--dialog-btn-border-width);
 
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    gap: var(--dialog-btn-gap);
+}
 
 /* Table, Containers and Items */
 .table{
@@ -428,18 +438,8 @@ dialog.settings .checkboxes{
     border-radius: var(--radius);
 }
 dialog.settings .dialog-buttons{
-    --btn-height: var(--dialog-btn-height);
-    --btn-width: var(--dialog-btn-width);
-    --btn-fontsize: var(--dialog-btn-fontsize);
-    --btn-border-width: var(--dialog-btn-border-width);
-
     grid-area: dialog-buttons;
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-end;
-    gap: var(--dialog-btn-gap);
 }
-
 
 dialog.settings .sliders .slider-container{
     display: grid;
@@ -489,6 +489,54 @@ input[type="checkbox"]:checked + .checkbox-styled {
     outline-offset: calc(-1 * var(--checkbox-inner-outline-checked-gap) - var(--checkbox-border-size) - var(--checkbox-inner-outline-checked));
 }
 
+/* Rules dialog */
+
+:root{
+    --dialog-rules-h2-margin-top: 1em;
+    --dialog-rules-h2-margin-bottom: 0.8em;
+    --dialog-rules-txt-margin-tb: 0.5em;
+    --dialog-rules-txt-fontsize: 1.2rem;
+    --dialog-rules-h2-fontsize: 1.5rem;
+}
+
+dialog.rules h2{
+    font-size: var(--dialog-rules-h2-fontsize);
+    margin-top: var(--dialog-rules-h2-margin-top);
+    margin-bottom: var(--dialog-rules-h2-margin-bottom);
+}
+
+dialog.rules h2:first-of-type{
+    font-size: var(--dialog-rules-h2-fontsize);
+    margin-top: 0;
+}
+
+
+dialog.rules p{
+    margin-top: var(--dialog-rules-txt-margin-tb);
+    margin-bottom: var(--dialog-rules-txt-margin-tb);
+    text-align: justify;
+    font-size: var(--dialog-rules-txt-fontsize);
+}
+dialog.rules ul{
+    margin-top: var(--dialog-rules-txt-margin-tb);
+    margin-bottom: var(--dialog-rules-txt-margin-tb);
+    list-style: inside;
+    font-size: var(--dialog-rules-txt-fontsize);
+}
+
+dialog.rules .highlight{
+    font-weight: bold;
+    color: var(--col-accent-dark);
+}
+
+dialog.rules a{
+    color: var(--col-accent-dark);
+    text-decoration: none;
+}
+
+dialog.rules a:hover{
+    font-weight: bold;
+}
 
 /* tablet and desktop */
 @media only screen and (min-width: 768px), (orientation: landscape){
