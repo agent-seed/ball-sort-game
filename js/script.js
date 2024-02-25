@@ -239,9 +239,20 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
     // all the columns are either empty or full with equal items
     // i.e, the number of such columns is C = N+K
 
-    return this.table.filter((container) => (container.length==0
-        || (container.length==H && arrayEqualItems(container))
+    return this.table.filter((container,idx) => (container.length==0
+        || (container.length==H && arrayEqualItems(container) && this.hiddenItems[idx]==0)
         )).length == C;
+ };
+
+ Game.prototype.noMoreMoves = function(){
+
+    for (let cfrom=0; cfrom<C; cfrom++){
+        for (let cto=0; cto<C; cto++){
+            if (this.isMoveAllowed(cfrom, cto))
+                return false; // move allowed
+        }
+    }
+    return true; // move not allowed
  };
 
  Game.prototype.restart = function(){
@@ -556,6 +567,17 @@ function containerClick_callback(e){
 
                         // re-enable pointer events
                         table_div.style.pointerEvents = 'auto';
+
+                        // If solved, show the corresponding message
+                        if(game.isSolved()){
+                            wonMsg_dialog.show(); // non modal dialog
+                        } else if (game.noMoreMoves()){
+                            noMoreMovesMsg_dialog.show(); // non modal dialog
+                        }
+
+                        // Show the game outcome if certain conditions are met (e.g., win, no more moves)
+                        showGameOutcome();
+
                     }, TIME_TRANSITIONS);
                 }, TIME_TRANSITIONS);
             } else {
@@ -574,17 +596,34 @@ function containerClick_callback(e){
     }
 }
 
+// Show the game outcome if certain conditions are met (e.g., win, no more moves)
+function showGameOutcome(){
+    if(game.isSolved()){
+        wonMsg_dialog.show(); // non modal dialog
+    } else if (game.noMoreMoves()){
+        noMoreMovesMsg_dialog.show(); // non modal dialog
+    }
+}
+
+function closeGameOutcome(){
+    wonMsg_dialog.close(); // non modal dialog
+    noMoreMovesMsg_dialog.close(); // non modal dialog
+}
 
 /* || Buttons event listener */
 function newBtn_callback(){
+    closeGameOutcome();
     newGame();
 }
 
 function restartBtn_callback(){
+    closeGameOutcome();
     restartGame();
 }
 
 function undoBtn_callback(){
+    closeGameOutcome();
+
     let lastMove = game.undoLastMove();
     if (lastMove.length){
         let fromIdx = lastMove[0];
@@ -681,6 +720,8 @@ function settingsDialogCancelBtn_callback(){
 
 
 function settingsDialogSaveBtn_callback(){
+    closeGameOutcome();
+
     N = document.querySelector(`.slider-container#set-N .slider > div`).noUiSlider.get();
     K = document.querySelector(`.slider-container#set-K .slider > div`).noUiSlider.get();
     H = document.querySelector(`.slider-container#set-H .slider > div`).noUiSlider.get();
@@ -716,6 +757,9 @@ function init(){
     settingsDialogCancelBtn.addEventListener('click', settingsDialogCancelBtn_callback);
     settingsDialogSaveBtn.addEventListener('click', settingsDialogSaveBtn_callback);
 
+    wonMsg_dialog = document.querySelector('#won-msg');
+    noMoreMovesMsg_dialog = document.querySelector('#noMoreMoves-msg');
+
     window.addEventListener('resize',setNumberOfRowsAndCols);
 
     // Create a new game
@@ -727,5 +771,9 @@ let game; // global variable representing the current game
 let table_div; // global variable representing the current game HTML interface
 let container_divs;
 let fromContainer_div;
+
+let wonMsg_dialog;
+let noMoreMovesMsg_dialog;
+
 
 init();

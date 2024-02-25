@@ -8,7 +8,7 @@
     --col-black:        #474545;
     --col-accent-dark:  #748E63;
     --col-accent-light: #99B080;
-
+    --col-transparent: rgb(0,0,0,0%);
 
     /* Colors (background)*/
     --bg-col:                   var(--col-purewhite);
@@ -638,6 +638,42 @@ input[type="checkbox"]:checked + .checkbox-styled {
     align-items:        center;
     justify-content:    center;
     top:                var(--noUI-tooltip-top) !important;
+}
+
+/* Outcome message */
+#won-msg,
+#noMoreMoves-msg{
+    font-weight:        bold;
+    text-align:         center;
+
+    max-width:          100%;
+    padding:            var(--dialog-padding) 0;
+    border:             0;
+    border-radius:      0;
+    background-color: rgb(255,255,255,70%);
+
+    --shadow-offset: 2px;
+    --shadow-offset-neg: calc(-1 * var(--shadow-offset));
+    --shadow-radius: 5px;
+    --shadow-col: var(--col-purewhite);
+    --shadow-col-alt: var(--col-white);
+    text-shadow: var(--shadow-offset) var(--shadow-offset) var(--shadow-radius) var(--shadow-col), 
+                 var(--shadow-offset-neg) var(--shadow-offset-neg) var(--shadow-radius) var(--shadow-col-alt),
+                 var(--shadow-offset-neg) var(--shadow-offset) var(--shadow-radius) var(--shadow-col), 
+                 var(--shadow-offset) var(--shadow-offset-neg) var(--shadow-radius) var(--shadow-col-alt);
+
+    text-shadow: var(--shadow-offset) 0 var(--shadow-radius) var(--shadow-col), 
+                 var(--shadow-offset-neg) 0 var(--shadow-radius) var(--shadow-col-alt),
+                 0 var(--shadow-offset) var(--shadow-radius) var(--shadow-col), 
+                 0 var(--shadow-offset-neg) var(--shadow-radius) var(--shadow-col-alt);
+}
+
+#won-msg{
+    font-size: calc(0.30 * min(var(--max-width), 100vh));
+}
+
+#noMoreMoves-msg{
+    font-size: calc(0.15 * min(var(--max-width), 100vh));
 }
 
 
