@@ -450,13 +450,14 @@ function createTableHTML(table){
      }
 
      // Apply the created table to the main html
-     document.querySelector('main').appendChild(table_div);
+     console.log(table_div)
+     document.querySelector('main div.game').appendChild(table_div);
 
      setNumberOfRowsAndCols();
 }
 
 function deleteTableHTML(){
-    let main = document.querySelector('main');
+    let main = document.querySelector('main div.game');
     removeDescendants(main);
 }
 
@@ -610,7 +611,28 @@ function closeGameOutcome(){
     noMoreMovesMsg_dialog.close(); // non modal dialog
 }
 
+function setHeaderBasedOnStyle(){
+    let styleStr;
+    if (table_div.parentElement.classList.contains("liquid")){
+        document.querySelector('header button.toggle-style').classList.add('liquid');
+        styleStr = 'Liquid';
+    } else {
+        document.querySelector('header button.toggle-style').classList.remove('liquid');
+        styleStr = 'Ball';
+    }
+    document.title = `${styleStr} Sort Game`;
+    document.querySelector('header h1').textContent = document.title;  
+}
+
 /* || Buttons event listener */
+
+function toggleStyleBtn_callback(){
+    let game_div = table_div.parentElement;
+    game_div.classList.toggle("liquid");
+    setHeaderBasedOnStyle();
+}
+
+
 function newBtn_callback(){
     closeGameOutcome();
     newGame();
@@ -740,6 +762,9 @@ function init(){
     initItemsColorsCSSClasses();
     initSettings();
 
+    let toggleStyleBtn = document.querySelector('button.toggle-style');
+    toggleStyleBtn.addEventListener('click',toggleStyleBtn_callback);    
+
     let newBtn = document.querySelector('button.new');
     newBtn.addEventListener('click',newBtn_callback);
 
@@ -754,7 +779,6 @@ function init(){
     let rulesDialogCloseBtn = document.querySelector('dialog.rules .dialog-buttons button.close');
     rulesBtn.addEventListener('click', () => rulesDialog.showModal());
     rulesDialogCloseBtn.addEventListener('click', () => rulesDialog.close());
-
 
     let settingsBtn = document.querySelector('button.settings');
     let settingsDialog = document.querySelector('dialog.settings');
@@ -771,6 +795,7 @@ function init(){
 
     // Create a new game
     newGame();
+    setHeaderBasedOnStyle();
 }
 
 
