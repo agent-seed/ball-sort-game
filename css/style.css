@@ -98,6 +98,12 @@
 
     --sliders-gap-hor:          6px;
 
+    --dialog-rules-h2-margin-top: 1em;
+    --dialog-rules-h2-margin-bottom: 0.8em;
+    --dialog-rules-txt-margin-tb: 0.5em;
+    --dialog-rules-txt-fontsize: 1.2rem;
+    --dialog-rules-h2-fontsize: 1.5rem;
+
     /* Table, Containers and Items */
 
     --table-ver-padding: 20px;
@@ -228,7 +234,7 @@ header{
 
 /* Liquid style toggle */
 button.toggle-style{
-    --btn-icon-len: calc(var(--hdr-fontsize) * var(--txt-lineheight));
+    --btn-icon-len: var(--hdr-fontsize);
     background-color: transparent;
     color: var(--hdr-col);
 }
@@ -413,6 +419,7 @@ button .icon::before{
 
 .item.hidden{
     background-color: var(--col-black) !important;
+    /*border: 8px solid var(--col-black) !important; /*DEBUG*/
 }
 
 /* if hover supported */
@@ -541,14 +548,6 @@ input[type="checkbox"]:checked + .checkbox-styled {
 }
 
 /* Rules dialog */
-
-:root{
-    --dialog-rules-h2-margin-top: 1em;
-    --dialog-rules-h2-margin-bottom: 0.8em;
-    --dialog-rules-txt-margin-tb: 0.5em;
-    --dialog-rules-txt-fontsize: 1.2rem;
-    --dialog-rules-h2-fontsize: 1.5rem;
-}
 
 dialog.rules h2{
     font-size: var(--dialog-rules-h2-fontsize);
@@ -743,8 +742,7 @@ dialog.rules a{
 }
 
 /* Outcome message */
-#won-msg,
-#noMoreMoves-msg{
+.gameOutcome{
     font-weight:        bold;
     text-align:         center;
 
@@ -774,7 +772,8 @@ dialog.rules a{
     font-size: calc(0.30 * min(var(--max-width), 100vh));
 }
 
-#noMoreMoves-msg{
+#noMoreMoves-msg,
+#noMoreUsefulMoves-msg{
     font-size: calc(0.15 * min(var(--max-width), 100vh));
 }
 

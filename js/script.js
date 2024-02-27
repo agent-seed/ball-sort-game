@@ -85,6 +85,11 @@ function checkOverflow(el)
    return isOverflowing;
 }
 
+// https://stackoverflow.com/questions/16512182/how-to-create-empty-2d-array-in-javascript
+function create2dArray(rows, cols){
+    return [...Array(rows).keys()].map(i => Array(cols));
+}
+
 /* Game object, which has C containers and N*H items within them ---------------------------- */
 
 function Game(){
@@ -112,17 +117,34 @@ function Game(){
         this.table.push([]);
     }
 
-    // Save the initial table
-    this.initialTable  =  deepCopyMatrix(this.table);
-
     // Initialize the moves performed
     this.moves = [];  // elements: [fromCntIdx, toCntIdx, numOfItemsMoved]
 
     // if hideInitial mode, negative items are hidden
-    if (hideInitial){
-        this.hiddenItems = [...Array(N).fill(H-1),...Array(K).fill(0)];
-        this.initialHiddenItems  =  [...this.hiddenItems];
+    this.hiddenItems = [...Array(N).fill(hideInitial ? H-1 : 0),...Array(K).fill(0)];
+
+    // Other useful info
+    this.equalItemsOnTop = this.table.map((itm,idx) => this.getEqualItemsOnTop(idx));
+    this.emptyItemsOnTop = this.table.map((itm,idx) => this.getEmptyItemsOnTop(idx));
+
+    this.typeOfMove = create2dArray(C, C); 
+    // the rows are al the possible fromIdx, the column the toIdx of a move
+    // the type of move from container fromIdx to container toIdx is:
+    // 0: move not allowed
+    // 1: 'complete move' (move allowed, no item of the same color remain in the from container)
+    // 2: 'incomplete move' (move allowed, but at least an item of the same color remain in the from container)
+    for (let fromIdx=0; fromIdx<C; fromIdx++){
+        for (let toIdx=0; toIdx<C; toIdx++){
+            this.typeOfMove[fromIdx][toIdx] = this.getTypeOfMove(fromIdx,toIdx);
+        }
     }
+
+    // Save the initial data
+    this.initialTable            =  deepCopyMatrix(this.table);
+    this.initialHiddenItems      =  [...this.hiddenItems];
+    this.initialEqualItemsOnTop  =  [...this.equalItemsOnTop];
+    this.initialEmptyItemsOnTop  =  [...this.emptyItemsOnTop];
+    this.initialTypeOfMove       =  deepCopyMatrix(this.typeOfMove);
 }
 
 
@@ -167,11 +189,7 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
     
     if (performedMoves){
         this.moves.push([fromIdx,toIdx,performedMoves]);
-    }
-
-   
-    if (hideInitial && this.hiddenItems[fromIdx]>0 && this.table[fromIdx].length == this.hiddenItems[fromIdx]){
-        this.hiddenItems[fromIdx]--;
+        this.updateInfoAfterMove(fromIdx,toIdx);
     }
     
     return performedMoves;
@@ -197,6 +215,7 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
         this.table[toIdx].push(this.table[fromIdx].pop());
    
     // console.log(strTmp,` ---> [${this.table[fromIdx]}] > [${this.table[toIdx]}]`); // debug
+    this.updateInfoAfterMove(fromIdx,toIdx);
  
     return [fromIdx,toIdx,numOfItemsMoved];
  };
@@ -244,58 +263,106 @@ Game.prototype.makeMove = function(fromIdx,toIdx){
         )).length == C;
  };
 
- Game.prototype.noMoreMoves = function(){
+ Game.prototype.getEqualItemsOnTop = function(cntIdx){
+    // Recall that the top items are stored in the tail of the array
+    // If HideInitial is true, you must ignore the items belows this.hiddenItems[cntIdx] 
+    // (if hideInitial...otherwise this is 0...so you can use this.hiddenItems[cntIdx] too)
+    
+    let cntN = this.table[cntIdx].length;
 
-    for (let cfrom=0; cfrom<C; cfrom++){
-        for (let cto=0; cto<C; cto++){
-            if (this.isMoveAllowed(cfrom, cto))
-                return false; // move allowed
+    // If N=0, there are 0 equal items
+    // If N=1, there is just 1 (equal) items
+    if (cntN < 2)
+        return cntN;
+
+    // Otherwise, explicitly count the equal items
+    let eqN = 1;
+    for (let i=cntN-2; i>=this.hiddenItems[cntIdx]; i--){
+        if (this.table[cntIdx][i] != this.table[cntIdx][cntN-1])
+            break;
+        eqN++;
+    }
+    return eqN;
+};
+
+Game.prototype.getEmptyItemsOnTop = function(cntIdx){
+    return H - this.table[cntIdx].length;
+};
+
+Game.prototype.getAfterMoveRemainingItemsOnTop = function(fromIdx,toIdx){
+    return Math.max(this.equalItemsOnTop[fromIdx]-this.emptyItemsOnTop[toIdx],0);
+};
+
+Game.prototype.getTypeOfMove = function(fromIdx,toIdx){
+    // return the type of move:
+    // 0: move not allowed
+    // 1: 'complete move' (move allowed, no item of the same color remain in the from container)
+    // 2: 'incomplete move' (move allowed, but at least an item of the same color remain in the from container)
+    if (this.isMoveAllowed(fromIdx, toIdx)){
+        let remainingItmFrom = this.getAfterMoveRemainingItemsOnTop(fromIdx,toIdx);
+        // console.log(`${fromIdx}>${toIdx}: ${remainingItmFrom}`);
+        if (remainingItmFrom==0)
+            return 1; // type 1
+        else 
+            return 2; // type 2
+    } else {
+        return 0; // type 0
+    }
+};
+
+Game.prototype.updateInfoAfterMove = function(fromIdx,toIdx){
+    /* Update the hidden items number: do this first! */
+    if (hideInitial && this.hiddenItems[fromIdx]>0 && this.table[fromIdx].length == this.hiddenItems[fromIdx]){
+        this.hiddenItems[fromIdx]--;
+    }
+
+    this.equalItemsOnTop[fromIdx] = this.getEqualItemsOnTop(fromIdx);
+    this.equalItemsOnTop[toIdx] = this.getEqualItemsOnTop(toIdx);
+
+    this.emptyItemsOnTop[fromIdx] = this.getEmptyItemsOnTop(fromIdx);
+    this.emptyItemsOnTop[toIdx] = this.getEmptyItemsOnTop(toIdx);
+
+    for (let cntIdx=0; cntIdx<C; cntIdx++){
+        this.typeOfMove[fromIdx][cntIdx] = this.getTypeOfMove(fromIdx,cntIdx);
+        this.typeOfMove[toIdx][cntIdx] = this.getTypeOfMove(toIdx,cntIdx);
+        this.typeOfMove[cntIdx][fromIdx] = this.getTypeOfMove(cntIdx,fromIdx);
+        this.typeOfMove[cntIdx][toIdx] = this.getTypeOfMove(cntIdx,toIdx);
+    }
+};
+
+ Game.prototype.noMoreMoves = function(){
+    // return the move status for the game:
+    // 0: there is at least one useful move to do
+    // 1: there is at least one useless move to do, but no useful ones
+    // 2: there are no more moves to do
+    // Note: a move is useless if it leavs some items of the same color in the same container
+    let uselessMoves = false;
+    for (let fromIdx=0; fromIdx<C; fromIdx++){
+        for (let toIdx=0; toIdx<C; toIdx++){
+            if (this.typeOfMove[fromIdx][toIdx]==1){
+                // 'complete move' (move allowed, no item of the same color remain in the from container)
+                return 0;
+            } else if (this.typeOfMove[fromIdx][toIdx]==2){
+                // 'incomplete move' (move allowed, but at least an item of the same color remain in the from container)
+                uselessMoves = true;
+            }
         }
     }
-    return true; // move not allowed
+    return uselessMoves ? 1 : 2; // move not allowed: chose the output state based on the presence of useless moves
  };
 
  Game.prototype.restart = function(){
     this.table = deepCopyMatrix(this.initialTable);
     if (hideInitial)
         this.hiddenItems = [...this.initialHiddenItems];
+
+    this.equalItemsOnTop = [...this.initialEqualItemsOnTop];
+    this.emptyItemsOnTop = [...this.initialEmptyItemsOnTop];
+    this.typeOfMove = deepCopyMatrix(this.initialTypeOfMove);
+
     this.moves = [];
  };
 
-
-
-// test and debug ----------------------------------------------
-//let game = new Game();
-
-// console.table(game.initialTable);
-// console.table(game.table);
-
-// game.makeMove(0,2);
-// game.makeMove(2,2);
-// game.makeMove(6,3);
-// game.makeMove(0,6);
-// game.makeMove(0,6);
-// game.makeMove(1,6);
-// game.makeMove(0,1);
-
-// console.table(game.initialTable);
-// console.table(game.table);
-
-// console.log(game.isSolved());
-
-// // set table as the final configuration to test the isSolved method
-// game.table = [];
-// for (let i=0; i<N; i++){
-//     game.table.push(Array(H).fill(i));
-// }
-// // append the empty containers
-// for (let i=0; i<K; i++){
-//     game.table.push([]);
-// }
-// // shuffle it
-// shuffle(game.table);
-// // test the function
-// console.log(game.isSolved());
 // -------------------------------------------------------------
 
 
@@ -450,7 +517,6 @@ function createTableHTML(table){
      }
 
      // Apply the created table to the main html
-     console.log(table_div)
      document.querySelector('main div.game').appendChild(table_div);
 
      setNumberOfRowsAndCols();
@@ -468,7 +534,6 @@ function newGame(){
 
     // Create a new game
     game = new Game();
-    console.table(game.table);
     createTableHTML(game.table);
 
     // No items selected initially
@@ -485,7 +550,7 @@ function restartGame(){
 
     // Create a new game
     game.restart();
-    console.table(game.table);
+
     createTableHTML(game.table);
 
     // No items selected initially
@@ -569,13 +634,6 @@ function containerClick_callback(e){
                         // re-enable pointer events
                         table_div.style.pointerEvents = 'auto';
 
-                        // If solved, show the corresponding message
-                        if(game.isSolved()){
-                            wonMsg_dialog.show(); // non modal dialog
-                        } else if (game.noMoreMoves()){
-                            noMoreMovesMsg_dialog.show(); // non modal dialog
-                        }
-
                         // Show the game outcome if certain conditions are met (e.g., win, no more moves)
                         showGameOutcome();
 
@@ -601,14 +659,19 @@ function containerClick_callback(e){
 function showGameOutcome(){
     if(game.isSolved()){
         wonMsg_dialog.show(); // non modal dialog
-    } else if (game.noMoreMoves()){
-        noMoreMovesMsg_dialog.show(); // non modal dialog
+    } else{
+        let statusOfMoves = game.noMoreMoves();
+        if (statusOfMoves==1)
+            noMoreUsefulMovesMsg_dialog.show(); // non modal dialog
+        else if (statusOfMoves==2)
+            noMoreMovesMsg_dialog.show(); // non modal dialog
     }
 }
 
 function closeGameOutcome(){
-    wonMsg_dialog.close(); // non modal dialog
-    noMoreMovesMsg_dialog.close(); // non modal dialog
+    wonMsg_dialog.close();
+    noMoreUsefulMovesMsg_dialog.close();
+    noMoreMovesMsg_dialog.close();
 }
 
 function setHeaderBasedOnStyle(){
@@ -658,6 +721,8 @@ function undoBtn_callback(){
             let itmToMove = container_divs[fromIdx].lastElementChild;
             container_divs[toIdx].appendChild(itmToMove);
         }
+        // Show the game outcome if certain conditions are met (e.g., win, no more moves)
+        showGameOutcome();
     }
 }
 
@@ -789,6 +854,7 @@ function init(){
     settingsDialogSaveBtn.addEventListener('click', settingsDialogSaveBtn_callback);
 
     wonMsg_dialog = document.querySelector('#won-msg');
+    noMoreUsefulMovesMsg_dialog = document.querySelector('#noMoreUsefulMoves-msg');
     noMoreMovesMsg_dialog = document.querySelector('#noMoreMoves-msg');
 
     window.addEventListener('resize',setNumberOfRowsAndCols);
@@ -804,8 +870,7 @@ let table_div; // global variable representing the current game HTML interface
 let container_divs;
 let fromContainer_div;
 
-let wonMsg_dialog;
-let noMoreMovesMsg_dialog;
+let wonMsg_dialog,noMoreMovesMsg_dialog,noMoreUsefulMovesMsg_dialog;
 
 
 init();
