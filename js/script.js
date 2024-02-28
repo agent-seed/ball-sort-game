@@ -760,7 +760,8 @@ function addcontainer_callback(){
     // Source: Ito, T et al, "Sorting Balls and Water: Equivalence and Computational Complexity", 
     // arXiv:2202.09495 [cs.CC]
     // available at https://arxiv.org/pdf/2202.09495.pdf
-    if (K+this.KA > Math.ceil((H-1)/H*N))
+    console.log(K+game.KA,C-N,Math.ceil((H-1)/H*N));
+    if (C-N > Math.ceil((H-1)/H*N))
         return;
 
     closeGameOutcome();
