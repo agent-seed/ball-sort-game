@@ -93,7 +93,7 @@ function create2dArray(rows, cols){
 /* Game object, which has C containers and N*H items within them ---------------------------- */
 
 function Game(){
-
+    C = N+K;
     // Note: the resulting table is not guaranteed to be solvable
     // TODO, add a function to check this
     // TODO, also, initialize the seed to get different levels
@@ -139,6 +139,8 @@ function Game(){
         }
     }
 
+    this.KA = 0; /* additional containers that have been added by the user*/
+
     // Save the initial data
     this.initialTable            =  deepCopyMatrix(this.table);
     this.initialHiddenItems      =  [...this.hiddenItems];
@@ -149,8 +151,8 @@ function Game(){
 
 Game.prototype.addEmptyContainer = function(){
     let newId = C;
-    K++;
-    C = N+K; 
+    this.KA++;
+    C = N+K+this.KA; 
 
     this.table.push([]);
     this.hiddenItems.push(0);
@@ -372,6 +374,8 @@ Game.prototype.updateInfoAfterMove = function(fromIdx,toIdx){
  };
 
  Game.prototype.restart = function(){
+    C = N+K;
+    this.KA = 0;
     this.table = deepCopyMatrix(this.initialTable);
     if (hideInitial)
         this.hiddenItems = [...this.initialHiddenItems];
@@ -756,7 +760,7 @@ function addcontainer_callback(){
     // Source: Ito, T et al, "Sorting Balls and Water: Equivalence and Computational Complexity", 
     // arXiv:2202.09495 [cs.CC]
     // available at https://arxiv.org/pdf/2202.09495.pdf
-    if (K > Math.ceil((H-1)/H*N))
+    if (K+this.KA > Math.ceil((H-1)/H*N))
         return;
 
     closeGameOutcome();
