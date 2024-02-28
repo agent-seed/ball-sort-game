@@ -147,6 +147,27 @@ function Game(){
     this.initialTypeOfMove       =  deepCopyMatrix(this.typeOfMove);
 }
 
+Game.prototype.addEmptyContainer = function(){
+    let newId = C;
+    K++;
+    C = N+K; 
+
+    this.table.push([]);
+    this.hiddenItems.push(0);
+
+    // Other useful info
+    this.equalItemsOnTop.push(0);
+    this.emptyItemsOnTop.push(H);
+
+    // here C is the added container ID: update C next
+    this.typeOfMove.push([]);
+    for (let cntIdx=0; cntIdx<newId; cntIdx++){
+        this.typeOfMove[cntIdx].push(this.getTypeOfMove(cntIdx,newId)); 
+        this.typeOfMove[newId].push(this.getTypeOfMove(newId,cntIdx)); 
+    }  
+    this.typeOfMove[newId].push(this.getTypeOfMove(newId,newId)); 
+}
+
 
 Game.prototype.isMoveAllowed = function(fromIdx,toIdx){
     // get the number of items in the two containers
@@ -175,7 +196,6 @@ Game.prototype.isMoveAllowed = function(fromIdx,toIdx){
 Game.prototype.makeMove = function(fromIdx,toIdx){
     // this returns 'false' if the move is not performed, 'true' otherwise
     let performedMoves = 0;
-
     while (this.isMoveAllowed(fromIdx,toIdx) ){
         performedMoves++;
         this.table[toIdx].push(this.table[fromIdx].pop());
@@ -499,7 +519,8 @@ function createTableHTML(table){
         container = table[i];
         container_div = document.createElement('div');
         container_div.classList.add('container');
-        container_div.id = i; /* assign the item id */
+        container_div.addEventListener('click',containerClick_callback);
+        container_div.cntId = i; /* assign the container id */
      
         // for each container, add the items, as specified in 'table' items
         for (let j=0;j<container.length;j++){
@@ -522,6 +543,18 @@ function createTableHTML(table){
      setNumberOfRowsAndCols();
 }
 
+function addEmptyContainerToTableHTML(){
+    let container_div = document.createElement('div');
+    container_div.classList.add('container');
+    container_div.cntId = C-1; /* assign the container id */
+    container_div.addEventListener('click',containerClick_callback);
+
+    table_div.appendChild(container_div);
+    container_divs.push(container_div);
+
+    setNumberOfRowsAndCols();    
+}
+
 function deleteTableHTML(){
     let main = document.querySelector('main div.game');
     removeDescendants(main);
@@ -538,10 +571,6 @@ function newGame(){
 
     // No items selected initially
     fromContainer_div = undefined;
-
-    // Add a click callback to all the container elements
-    items = document.querySelectorAll('.container');
-    items.forEach(itm => {itm.addEventListener('click',containerClick_callback)});
 }
 
 function restartGame(){
@@ -555,10 +584,6 @@ function restartGame(){
 
     // No items selected initially
     fromContainer_div = undefined;
-
-    // Add a click callback to all the container elements
-    items = document.querySelectorAll('.container');
-    items.forEach(itm => {itm.addEventListener('click',containerClick_callback)});
 }
 
 
@@ -566,14 +591,14 @@ function selectFromContainer(thisContainer_div){
     if (thisContainer_div.lastElementChild != null){ /* #1 */
         fromContainer_div = thisContainer_div;
         fromContainer_div.classList.add('selected');
-        console.log(`Container ${thisContainer_div.id} selected`);
+        console.log(`Container ${thisContainer_div.cntId} selected`);
     } else {
-        console.log(`Container ${thisContainer_div.id} not selected (it is empty)`);
+        console.log(`Container ${thisContainer_div.cntId} not selected (it is empty)`);
     }
 }
 
 function unselectFromContainer(){
-    console.log(`Container ${fromContainer_div.id} unselected`);
+    console.log(`Container ${fromContainer_div.cntId} unselected`);
     fromContainer_div.classList.remove('selected');
     fromContainer_div = undefined;
 }
@@ -581,7 +606,6 @@ function unselectFromContainer(){
 function containerClick_callback(e){
 
     let thisContainer_div = e.target;
-
     // https://stackoverflow.com/questions/1279957/how-to-move-an-element-into-another-element
     // https://stackoverflow.com/questions/1183872/put-a-delay-in-javascript
 
@@ -592,11 +616,11 @@ function containerClick_callback(e){
             unselectFromContainer();
         } else {
             // Check if the move can be performed: if so, apply the modification to the DOM
-            let numberOfMovesToDo = game.makeMove(fromContainer_div.id, thisContainer_div.id);
+            let numberOfMovesToDo = game.makeMove(fromContainer_div.cntId, thisContainer_div.cntId);
 
             if (numberOfMovesToDo>0){
 
-                console.log(`Moving ${numberOfMovesToDo} items from ${fromContainer_div.id} to ${thisContainer_div.id}`);
+                console.log(`Moving ${numberOfMovesToDo} items from ${fromContainer_div.cntId} to ${thisContainer_div.cntId}`);
 
                 // disable pointer events
                 table_div.style.pointerEvents = 'none';
@@ -641,7 +665,7 @@ function containerClick_callback(e){
                 }, TIME_TRANSITIONS);
             } else {
                 /* The move cannot be performed: change the selected 'from' container to this containter */
-                console.log(`Cannot move from ${fromContainer_div.id} to ${thisContainer_div.id} !`);
+                console.log(`Cannot move from ${fromContainer_div.cntId} to ${thisContainer_div.cntId} !`);
 
                 /* todo: add animation */
 
@@ -715,7 +739,7 @@ function undoBtn_callback(){
         let toIdx = lastMove[1];
         let numOfItemsMoved = lastMove[2];
 
-        console.log(`Undo last move, moving ${numOfItemsMoved} items from ${container_divs[fromIdx].id} to ${container_divs[toIdx].id}`); // debug
+        console.log(`Undo last move, moving ${numOfItemsMoved} items from ${container_divs[fromIdx].cntId} to ${container_divs[toIdx].cntId}`); // debug
 
         for (let i=0; i<numOfItemsMoved; i++){
             let itmToMove = container_divs[fromIdx].lastElementChild;
@@ -724,6 +748,20 @@ function undoBtn_callback(){
         // Show the game outcome if certain conditions are met (e.g., win, no more moves)
         showGameOutcome();
     }
+}
+
+function addcontainer_callback(){
+    // The minimum number of empty containers to have to be able to solve EVERY istance of the game 
+    // having fixed H and N is ceil((H-1)/H*N)
+    // Source: Ito, T et al, "Sorting Balls and Water: Equivalence and Computational Complexity", 
+    // arXiv:2202.09495 [cs.CC]
+    // available at https://arxiv.org/pdf/2202.09495.pdf
+    if (K > Math.ceil((H-1)/H*N))
+        return;
+
+    closeGameOutcome();
+    game.addEmptyContainer();
+    addEmptyContainerToTableHTML();
 }
 
 
@@ -751,6 +789,7 @@ function initSettingsDialog(){
                 noUiSlider.create(sliderDiv, {
                     start: [settingsInfo[param].default],
                     connect: [true, false],
+                    behaviour: 'smooth-steps-tap',
                     range: {
                         'min': settingsInfo[param].min,
                         'max': settingsInfo[param].max
@@ -836,8 +875,11 @@ function init(){
     let restartBtn = document.querySelector('button.restart');
     restartBtn.addEventListener('click',restartBtn_callback);
 
-    let undotBtn = document.querySelector('button.undo');
-    undotBtn.addEventListener('click',undoBtn_callback);
+    let undoBtn = document.querySelector('button.undo');
+    undoBtn.addEventListener('click',undoBtn_callback);
+
+    let addcontainerBtn = document.querySelector('button.addcontainer');
+    addcontainerBtn.addEventListener('click',addcontainer_callback);
 
     let rulesBtn = document.querySelector('button.rules');
     let rulesDialog = document.querySelector('dialog.rules');
