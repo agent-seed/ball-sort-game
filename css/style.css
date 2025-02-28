@@ -11,20 +11,20 @@
     --col-transparent: rgb(0,0,0,0%);
 
     /* Colors (background)*/
-    --bg-col:                   var(--col-purewhite);
+    --bg-col:                   #111;
 
     --hdr-bg-col:               var(--col-purewhite);
     --nav-bg-col:               var(--col-white);
     --btn-bg-col:               var(--col-accent-light);
  
     /* Colors (text/icons)*/
-    --col-txt:                  var(--col-black);
-    --col-txt-alt:              var(--col-purewhite);
-    --col-highlight:            var(--col-accent-dark);
+    --col-txt:                  var(--col-white);
+    --col-txt-alt:              var(--col-black);
+    --col-highlight:            var(--col-accent-light);
 
-    --hdr-col:                  var(--col-accent-dark);
-    --btn-col:                  var(--col-txt-alt);
-    --btn-focus-col:            var(--col-white);  
+    --hdr-col:                  var(--col-accent-light);
+    --btn-col:                  var(--col-txt);
+    --btn-focus-col:            var(--col-black);  
 
     /* Font family */
     --main-font:        'Montserrat', sans-serif;
