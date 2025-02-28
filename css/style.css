@@ -1,20 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat&family=Lato&display=swap');
-
+/* OVERRIDES */
+.container {
+    background-color: #222 !important;
+}
 :root,
 ::backdrop {
     /* Colors (palette)*/
     --col-purewhite:    white;
     --col-white:        #FAF8ED;
     --col-black:        #474545;
-    --col-accent-dark:  #748E63;
-    --col-accent-light: #99B080;
+    --col-accent-dark:  #8c638e;
+    --col-accent-light: #c33593;
     --col-transparent: rgb(0,0,0,0%);
 
     /* Colors (background)*/
-    --bg-col:                   #111;
+    --bg-col:                   #222;
 
-    --hdr-bg-col:               var(--col-purewhite);
-    --nav-bg-col:               var(--col-white);
+    --hdr-bg-col:               var(--bg-col);
+    --nav-bg-col:               var(--bg-col);
     --btn-bg-col:               var(--col-accent-light);
  
     /* Colors (text/icons)*/
@@ -65,10 +68,10 @@
     --btn-lineheight:       1;
 
     /* Dialog and settings*/
-    --dialog-bg-col: var(--col-white);
+    --dialog-bg-col: var(--col-black);
     --dialog-border: 3px solid var(--col-accent-dark);
 
-    --dialog-sections-bg-col: var(--col-purewhite);
+    --dialog-sections-bg-col: var(--bg-col);
 
     --dialog-padding:           4vw;    /* overwritten on larger screens */
     --dialog-sections-padding:  2vw 3vw; /* overwritten on larger screens */
@@ -386,7 +389,7 @@ button .icon::before{
 
 .container{
     /* background-color: var(--col-white); */
-    background-image: linear-gradient(0deg,var(--col-white) 75%,var(--col-purewhite) 100%);
+    /* background-image: linear-gradient(0deg,var(--col-white) 75%,var(--col-purewhite) 100%); */
 
     display: flex;
     flex-direction: column-reverse;
@@ -412,7 +415,7 @@ button .icon::before{
     height: var(--item-len);
     width: var(--item-len);
     border-radius: var(--item-radius);
-    background-image: radial-gradient(circle at center, rgb(255,255,255,60%) 2%, rgb(255,255,255,0%) 100%);
+    background-image: radial-gradient(circle at center, rgb(255, 255, 255) 1%, rgb(255,255,255,0%) 100%);
     transition: transform var(--item-transition-time), opacity var(--item-transition-time), scale var(--item-transition-time), background-color var(--item-transition-time);
     user-select: none;
 }
@@ -750,19 +753,19 @@ dialog.rules a{
     padding:            var(--dialog-padding) 0;
     border:             0;
     border-radius:      0;
-    background-color: rgb(255,255,255,70%);
+    background-color: rgba(0, 0, 0, 0.7);
 
     --shadow-offset: 2px;
     --shadow-offset-neg: calc(-1 * var(--shadow-offset));
     --shadow-radius: 5px;
     --shadow-col: var(--col-purewhite);
     --shadow-col-alt: var(--col-white);
-    text-shadow: var(--shadow-offset) var(--shadow-offset) var(--shadow-radius) var(--shadow-col), 
+    /* text-shadow: var(--shadow-offset) var(--shadow-offset) var(--shadow-radius) var(--shadow-col),  */
                  var(--shadow-offset-neg) var(--shadow-offset-neg) var(--shadow-radius) var(--shadow-col-alt),
                  var(--shadow-offset-neg) var(--shadow-offset) var(--shadow-radius) var(--shadow-col), 
                  var(--shadow-offset) var(--shadow-offset-neg) var(--shadow-radius) var(--shadow-col-alt);
 
-    text-shadow: var(--shadow-offset) 0 var(--shadow-radius) var(--shadow-col), 
+    /* text-shadow: var(--shadow-offset) 0 var(--shadow-radius) var(--shadow-col),  */
                  var(--shadow-offset-neg) 0 var(--shadow-radius) var(--shadow-col-alt),
                  0 var(--shadow-offset) var(--shadow-radius) var(--shadow-col), 
                  0 var(--shadow-offset-neg) var(--shadow-radius) var(--shadow-col-alt);
@@ -887,8 +890,8 @@ footer {
     align-items: center;
     justify-content: center;
     text-align: center;
-    background-color: var(--light-grey);
-    color: var(--black);
+    background-color: var(--black);
+    color: var(--light-grey);
     font-family: var(--ftr-font), sans-serif;
     font-size: var(--ftr-fontsize);
     font-weight: 400;
